@@ -73,8 +73,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef UX_FREERTOS_BINDING
+#define UX_DISABLE_THREADX_BINDING
+#endif
 
-#if !defined(UX_STANDALONE)
+
+#if !defined(UX_STANDALONE) && !defined(UX_DISABLE_THREADX_BINDING)
 #include "tx_api.h"
 #else
 
@@ -255,6 +259,11 @@ VOID    outpl(ULONG,ULONG);
 #define UX_DISABLE_INTS         old_interrupt_posture =  tx_interrupt_control(TX_INT_DISABLE);
 #define UX_RESTORE_INTS         tx_interrupt_control(old_interrupt_posture);
 
+
+
+#ifdef UX_FREERTOS_BINDING
+#include "ux_utility_freertos.h"
+#endif
 
 /* Define the version ID of USBX.  This may be utilized by the application.  */
 

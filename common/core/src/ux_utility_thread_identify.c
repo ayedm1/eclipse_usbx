@@ -1,10 +1,10 @@
 /***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
+ * Copyright (c) 2024 Microsoft Corporation
+ *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
  * https://opensource.org/licenses/MIT.
- * 
+ *
  * SPDX-License-Identifier: MIT
  **************************************************************************/
 
@@ -27,7 +27,7 @@
 #include "ux_api.h"
 
 
-#if !defined(UX_STANDALONE)
+#if !defined(UX_STANDALONE) && !defined(UX_DISABLE_THREADX_BINDING)
 #include "tx_thread.h"
 /**************************************************************************/
 /*                                                                        */

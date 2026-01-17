@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 # Set up the project
 project(usbx
     LANGUAGES C ASM
-)    
+)
 
 if(NOT DEFINED THREADX_ARCH)
     message(FATAL_ERROR "Error: THREADX_ARCH not defined")
@@ -17,7 +17,7 @@ add_library(${PROJECT_NAME})
 add_library("azrtos::${PROJECT_NAME}" ALIAS ${PROJECT_NAME})
 
 # Define any required dependencies between this library and others
-target_link_libraries(${PROJECT_NAME} PUBLIC 
+target_link_libraries(${PROJECT_NAME} PUBLIC
     "azrtos::threadx"
     "azrtos::filex"
     "azrtos::netxduo"
@@ -47,11 +47,25 @@ else()
     message(STATUS "Using custom ux_user.h file from ${UX_USER_FILE}")
 endif()
 configure_file(${UX_USER_FILE} ${CUSTOM_INC_DIR}/ux_user.h COPYONLY)
-target_include_directories(${PROJECT_NAME} 
-    PUBLIC 
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
     ${CUSTOM_INC_DIR}
 )
 target_compile_definitions(${PROJECT_NAME} PUBLIC "UX_INCLUDE_USER_DEFINE_FILE" )
+
+# Option to enable FreeRTOS binding (adds compile definition)
+option(UX_FREERTOS_BINDING "Enable FreeRTOS RTOS binding" OFF)
+if(UX_FREERTOS_BINDING)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC UX_FREERTOS_BINDING)
+endif()
+
+# FreeRTOS RTOS abstraction (compiled harmlessly unless UX_FREERTOS_BINDING is defined)
+target_sources(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/common/usbx_rtos_abstration/src/ux_utility_freertos.c
+)
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/common/usbx_rtos_abstration/inc
+)
 
 # Enable a build target that produces a ZIP file of all sources
 set(CPACK_SOURCE_GENERATOR "ZIP")

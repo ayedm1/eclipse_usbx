@@ -27,7 +27,7 @@
 #include "ux_api.h"
 
 
-#if !defined(UX_STANDALONE)
+#if !defined(UX_STANDALONE) && !defined(UX_DISABLE_THREADX_BINDING)
 /**************************************************************************/
 /*                                                                        */
 /*  FUNCTION                                               RELEASE        */

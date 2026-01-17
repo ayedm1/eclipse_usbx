@@ -1,18 +1,18 @@
 /***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
+ * Copyright (c) 2024 Microsoft Corporation
+ *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
  * https://opensource.org/licenses/MIT.
- * 
+ *
  * SPDX-License-Identifier: MIT
  **************************************************************************/
 
 
 /**************************************************************************/
 /**************************************************************************/
-/**                                                                       */ 
-/** USBX Component                                                        */ 
+/**                                                                       */
+/** USBX Component                                                        */
 /**                                                                       */
 /**   Utility                                                             */
 /**                                                                       */
@@ -27,42 +27,42 @@
 #include "ux_api.h"
 
 
-#if !defined(UX_STANDALONE)
-/**************************************************************************/ 
-/*                                                                        */ 
-/*  FUNCTION                                               RELEASE        */ 
-/*                                                                        */ 
-/*    _ux_utility_mutex_create                            PORTABLE C      */ 
+#if !defined(UX_STANDALONE) && !defined(UX_DISABLE_THREADX_BINDING)
+/**************************************************************************/
+/*                                                                        */
+/*  FUNCTION                                               RELEASE        */
+/*                                                                        */
+/*    _ux_utility_mutex_create                            PORTABLE C      */
 /*                                                           6.1.11       */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Chaoqiong Xiao, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
-/*                                                                        */ 
-/*    This function creates a protection mutex.                           */ 
-/*                                                                        */ 
-/*  INPUT                                                                 */ 
-/*                                                                        */ 
-/*    mutex                                 Pointer to mutex              */ 
-/*    mutex_name                            Name of mutex                 */ 
-/*                                                                        */ 
-/*  OUTPUT                                                                */ 
-/*                                                                        */ 
-/*    Completion Status                                                   */ 
-/*                                                                        */ 
-/*  CALLS                                                                 */ 
-/*                                                                        */ 
+/*                                                                        */
+/*    This function creates a protection mutex.                           */
+/*                                                                        */
+/*  INPUT                                                                 */
+/*                                                                        */
+/*    mutex                                 Pointer to mutex              */
+/*    mutex_name                            Name of mutex                 */
+/*                                                                        */
+/*  OUTPUT                                                                */
+/*                                                                        */
+/*    Completion Status                                                   */
+/*                                                                        */
+/*  CALLS                                                                 */
+/*                                                                        */
 /*    tx_mutex_create                       ThreadX mutex create          */
-/*                                                                        */ 
-/*  CALLED BY                                                             */ 
-/*                                                                        */ 
-/*    USBX Components                                                     */ 
-/*                                                                        */ 
-/*  RELEASE HISTORY                                                       */ 
-/*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
+/*                                                                        */
+/*  CALLED BY                                                             */
+/*                                                                        */
+/*    USBX Components                                                     */
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
 /*  05-19-2020     Chaoqiong Xiao           Initial Version 6.0           */
 /*  09-30-2020     Chaoqiong Xiao           Modified comment(s),          */
 /*                                            used UX prefix to refer to  */
@@ -81,7 +81,7 @@ UINT    status;
 
 
     /* Call ThreadX to create the Mutex object.  */
-    status =  tx_mutex_create(mutex, (CHAR *) mutex_name, TX_NO_INHERIT);   
+    status =  tx_mutex_create(mutex, (CHAR *) mutex_name, TX_NO_INHERIT);
 
     /* Check for status.  */
     if (status != UX_SUCCESS)

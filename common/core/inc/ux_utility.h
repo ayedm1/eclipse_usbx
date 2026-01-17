@@ -70,16 +70,16 @@
 
 /* Define Utility component function prototypes.  */
 
-VOID             _ux_utility_descriptor_parse(UCHAR * raw_descriptor, UCHAR * descriptor_structure,
-                             UINT descriptor_entries, UCHAR * descriptor);
-VOID             _ux_utility_descriptor_pack(UCHAR * descriptor, UCHAR * descriptor_structure,
-                             UINT descriptor_entries, UCHAR * raw_descriptor);
-ULONG            _ux_utility_descriptor_parse_size(UCHAR * descriptor_structure, UINT descriptor_entries, UINT size_align_mask);
+VOID             _ux_utility_descriptor_parse(UCHAR *raw_descriptor, UCHAR *descriptor_structure,
+                                              UINT descriptor_entries, UCHAR *descriptor);
+VOID             _ux_utility_descriptor_pack(UCHAR *descriptor, UCHAR *descriptor_structure,
+                                             UINT descriptor_entries, UCHAR *raw_descriptor);
+ULONG            _ux_utility_descriptor_parse_size(UCHAR *descriptor_structure, UINT descriptor_entries, UINT size_align_mask);
 
-ULONG            _ux_utility_long_get(UCHAR * address);
-VOID             _ux_utility_long_put(UCHAR * address, ULONG value);
-VOID             _ux_utility_long_put_big_endian(UCHAR * address, ULONG value);
-ULONG            _ux_utility_long_get_big_endian(UCHAR * address);
+ULONG            _ux_utility_long_get(UCHAR *address);
+VOID             _ux_utility_long_put(UCHAR *address, ULONG value);
+VOID             _ux_utility_long_put_big_endian(UCHAR *address, ULONG value);
+ULONG            _ux_utility_long_get_big_endian(UCHAR *address);
 VOID            *_ux_utility_memory_allocate(ULONG memory_alignment,ULONG memory_cache_flag, ULONG memory_size_requested);
 UINT             _ux_utility_memory_compare(VOID *memory_source, VOID *memory_destination, ULONG length);
 VOID             _ux_utility_memory_copy(VOID *memory_destination, VOID *memory_source, ULONG length);
@@ -90,18 +90,18 @@ UCHAR           *_ux_utility_memory_byte_pool_search(UX_MEMORY_BYTE_POOL *pool_p
 UINT             _ux_utility_memory_byte_pool_create(UX_MEMORY_BYTE_POOL *pool_ptr, VOID *pool_start, ULONG pool_size);
 VOID             _ux_utility_memory_set(VOID *destination, UCHAR value, ULONG length);
 ULONG            _ux_utility_pci_class_scan(ULONG pci_class, ULONG bus_number, ULONG device_number,
-                            ULONG function_number, ULONG *current_bus_number,
-                            ULONG *current_device_number, ULONG *current_function_number);
+                                            ULONG function_number, ULONG *current_bus_number,
+                                            ULONG *current_device_number, ULONG *current_function_number);
 ULONG            _ux_utility_pci_read(ULONG bus_number, ULONG device_number, ULONG function_number,
-                             ULONG offset, UINT read_size);
+                                      ULONG offset, UINT read_size);
 VOID             _ux_utility_pci_write(ULONG bus_number, ULONG device_number, ULONG function_number,
-                             ULONG offset, ULONG value, UINT write_size);
+                                       ULONG offset, ULONG value, UINT write_size);
 VOID            *_ux_utility_physical_address(VOID *virtual_address);
 VOID             _ux_utility_set_interrupt_handler(UINT irq, VOID (*interrupt_handler)(VOID));
-ULONG            _ux_utility_short_get(UCHAR * address);
-ULONG            _ux_utility_short_get_big_endian(UCHAR * address);
-VOID             _ux_utility_short_put(UCHAR * address, USHORT value);
-VOID             _ux_utility_short_put_big_endian(UCHAR * address, USHORT value);
+ULONG            _ux_utility_short_get(UCHAR *address);
+ULONG            _ux_utility_short_get_big_endian(UCHAR *address);
+VOID             _ux_utility_short_put(UCHAR *address, USHORT value);
+VOID             _ux_utility_short_put_big_endian(UCHAR *address, USHORT value);
 VOID            *_ux_utility_virtual_address(VOID *physical_address);
 VOID             _ux_utility_unicode_to_string(UCHAR *source, UCHAR *destination);
 VOID             _ux_utility_string_to_unicode(UCHAR *source, UCHAR *destination);
@@ -118,10 +118,10 @@ UINT             _ux_utility_semaphore_delete(UX_SEMAPHORE *semaphore);
 UINT             _ux_utility_semaphore_get(UX_SEMAPHORE *semaphore, ULONG semaphore_signal);
 UINT             _ux_utility_semaphore_put(UX_SEMAPHORE *semaphore);
 UINT             _ux_utility_thread_create(UX_THREAD *thread_ptr, CHAR *name,
-                             VOID (*entry_function)(ULONG), ULONG entry_input,
-                             VOID *stack_start, ULONG stack_size,
-                             UINT priority, UINT preempt_threshold,
-                             ULONG time_slice, UINT auto_start);
+                                           VOID (*entry_function)(ULONG), ULONG entry_input,
+                                           VOID *stack_start, ULONG stack_size,
+                                           UINT priority, UINT preempt_threshold,
+                                           ULONG time_slice, UINT auto_start);
 UINT             _ux_utility_thread_delete(UX_THREAD *thread_ptr);
 VOID             _ux_utility_thread_relinquish(VOID);
 UINT             _ux_utility_thread_schedule_other(UINT caller_priority);
@@ -130,15 +130,15 @@ UINT             _ux_utility_thread_sleep(ULONG ticks);
 UINT             _ux_utility_thread_suspend(UX_THREAD *thread_ptr);
 UX_THREAD       *_ux_utility_thread_identify(VOID);
 UINT             _ux_utility_timer_create(UX_TIMER *timer, CHAR *timer_name, VOID (*expiration_function) (ULONG),
-                             ULONG expiration_input, ULONG initial_ticks, ULONG reschedule_ticks,
-                             UINT activation_flag);
+                                          ULONG expiration_input, ULONG initial_ticks, ULONG reschedule_ticks,
+                                          UINT activation_flag);
 UINT             _ux_utility_timer_delete(UX_TIMER *timer);
-UINT             _ux_utility_event_flags_create(UX_EVENT_FLAGS_GROUP*group_ptr, CHAR *name);
-UINT             _ux_utility_event_flags_delete(UX_EVENT_FLAGS_GROUP*group_ptr);
-UINT             _ux_utility_event_flags_get(UX_EVENT_FLAGS_GROUP*group_ptr, ULONG requested_flags,
-                                                 UINT get_option, ULONG *actual_flags_ptr, ULONG wait_option);
-UINT             _ux_utility_event_flags_set(UX_EVENT_FLAGS_GROUP*group_ptr, ULONG flags_to_set,
-                                                 UINT set_option);
+UINT             _ux_utility_event_flags_create(UX_EVENT_FLAGS_GROUP *group_ptr, CHAR *name);
+UINT             _ux_utility_event_flags_delete(UX_EVENT_FLAGS_GROUP *group_ptr);
+UINT             _ux_utility_event_flags_get(UX_EVENT_FLAGS_GROUP *group_ptr, ULONG requested_flags,
+                                             UINT get_option, ULONG *actual_flags_ptr, ULONG wait_option);
+UINT             _ux_utility_event_flags_set(UX_EVENT_FLAGS_GROUP *group_ptr, ULONG flags_to_set,
+                                             UINT set_option);
 #endif
 
 #ifndef             _ux_utility_interrupt_disable

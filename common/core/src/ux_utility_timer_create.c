@@ -27,7 +27,7 @@
 #include "ux_api.h"
 
 
-#if !defined(UX_STANDALONE)
+#if !defined(UX_STANDALONE) && !defined(UX_DISABLE_THREADX_BINDING)
 /**************************************************************************/
 /*                                                                        */
 /*  FUNCTION                                               RELEASE        */
@@ -77,8 +77,8 @@
 /*                                                                        */
 /**************************************************************************/
 UINT  _ux_utility_timer_create(UX_TIMER *timer, CHAR *timer_name, VOID (*expiration_function) (ULONG),
-                                ULONG expiration_input, ULONG initial_ticks, ULONG reschedule_ticks,
-                                UINT activation_flag)
+                               ULONG expiration_input, ULONG initial_ticks, ULONG reschedule_ticks,
+                               UINT activation_flag)
 {
 
 UINT    status;
@@ -86,7 +86,7 @@ UINT    status;
 
     /* Call ThreadX to create the timer object.  */
     status =  tx_timer_create(timer, (CHAR *) timer_name, expiration_function, expiration_input,
-                                initial_ticks, reschedule_ticks, activation_flag);
+                              initial_ticks, reschedule_ticks, activation_flag);
 
     /* Check status.  */
     if (status != UX_SUCCESS)
