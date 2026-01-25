@@ -5,6 +5,9 @@ cmake_policy(SET CMP0077 NEW)
 
 project(regression_demo_test LANGUAGES C)
 
+# Use customized ux_user.h
+set(UX_USER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/ux_user.h)
+
 get_filename_component(SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../regression_samples_rtos
                        ABSOLUTE)
 
