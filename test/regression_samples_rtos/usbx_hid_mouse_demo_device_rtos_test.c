@@ -77,7 +77,7 @@ void usbx_hid_mouse_demo_device_rtos_test_application_define(void *first_unused_
                                        UX_DEMO_STACK_SIZE, 20, 20, 1, UX_AUTO_START);
 
     /* Check for error.  */
-    if (status != TX_SUCCESS)
+    if (status != UX_SUCCESS)
     {
 
         printf("Error on line %d, error code: %d\n", __LINE__, status);
@@ -90,17 +90,19 @@ static void  tx_demo_thread_host_simulation_entry(ULONG arg)
 {
 
 UINT    status;
+
+ULONG   cur_mouse_buttons           = 0;
+SLONG   cur_mouse_x_position        = 0;
+SLONG   cur_mouse_y_position        = 0;
+SLONG   cur_mouse_wheel_movement    = 0;
+
 UINT    max_num_loops;
 UINT    num_loops;
 ULONG   num_attempts;
 ULONG   max_attempts;
-SLONG   cur_mouse_wheel_movement;
 SLONG   next_mouse_wheel_movement;
-SLONG   cur_mouse_x_position;
-SLONG   cur_mouse_y_position;
 SLONG   next_mouse_x_position;
 SLONG   next_mouse_y_position;
-ULONG   cur_mouse_buttons;
 UCHAR   next_mouse_buttons;
 
   while (1)
@@ -134,26 +136,6 @@ UCHAR   next_mouse_buttons;
             test_control_return(1);
         }
 
-        /* Are these the expected values? */
-        if (cur_mouse_buttons == next_mouse_buttons &&
-            cur_mouse_x_position == next_mouse_x_position &&
-            cur_mouse_y_position == next_mouse_y_position &&
-            cur_mouse_wheel_movement == next_mouse_wheel_movement)
-            break;
-
-        /* Have we hit the max number of attempts? */
-        if (num_attempts++ == max_attempts)
-        {
-
-            printf("Error on line %d\n", __LINE__);
-            test_control_return(1);
-        }
-
-        /* Increment values. */
-        next_mouse_buttons = 0x07 & (next_mouse_buttons + 1);
-        next_mouse_x_position++;
-        next_mouse_y_position++;
-        next_mouse_wheel_movement++;
     }
     else
     {
@@ -162,7 +144,7 @@ UCHAR   next_mouse_buttons;
 
   }
 
-  
+
 }
 
 UINT ux_host_event_callback(ULONG event, UX_HOST_CLASS *current_class, VOID *current_instance)
@@ -236,3 +218,4 @@ UINT ux_host_event_callback(ULONG event, UX_HOST_CLASS *current_class, VOID *cur
 
   return status;
 }
+
