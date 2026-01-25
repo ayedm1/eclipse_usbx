@@ -1,18 +1,12 @@
 /* Direct SIL regression test for samples/demo_device_hid_mouse_rtos.c */
 
+#include "ux_api.h"
+#include "ux_host_class_hid.h"
+#include "ux_host_class_hid_mouse.h"
+
 /* Ensure device-only demo compiles within the test. */
 #define UX_DEVICE_SIDE_ONLY
-#define EXTERNAL_MAIN
-#define EXTERNAL_DCD_INITIALIZE
 
-#include "usbx_test_common_hid.h"
-
-/* Include the demo implementation directly so we test its exact behavior. */
-#include "../../samples/demo_device_hid_mouse_rtos.c"
-
-#include "ux_host_class_hid_mouse.h"
-#include "ux_test_utility_sim.h"
-#include "ux_test_hcd_sim_host.h"
 
 static UX_HOST_CLASS_HID_MOUSE *mouse;
 
@@ -130,10 +124,8 @@ void usbx_hid_mouse_demo_device_rtos_test_application_define(void *first_unused_
 
     /* Create host validation thread; memory for ThreadX stacks comes from test-common buffer. */
     stack_pointer = (CHAR *)usbx_memory;
-    memory_pointer = stack_pointer + (UX_DEMO_STACK_SIZE * 2);
-    UX_PARAMETER_NOT_USED(memory_pointer); /* not needed since demo did system init */
 
     status = tx_thread_create(&tx_demo_thread_host_simulation, "host", tx_demo_thread_host_simulation_entry, 0,
-                              stack_pointer, UX_DEMO_STACK_SIZE, 20, 20, 1, TX_AUTO_START);
+                              stack_pointer, 1024, 20, 20, 1, TX_AUTO_START);
     if (status != TX_SUCCESS) { printf("Host thread fail\n"); test_control_return(1); }
 }
