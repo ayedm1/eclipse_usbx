@@ -56,7 +56,7 @@
 /**************************************************/
 /**  Define constants                             */
 /**************************************************/
-#define UX_DEVICE_MEMORY_STACK_SIZE     (7*1024)
+#define UX_DEVICE_MEMORY_STACK_SIZE     (32*1024)
 #define UX_DEMO_THREAD_STACK_SIZE       (1*1024)
 
 #ifdef DEMO_HID_BOOT_DEVICE

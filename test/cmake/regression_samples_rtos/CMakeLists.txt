@@ -195,7 +195,7 @@ foreach(test_case ${samples_cases})
   set_source_files_properties(
     ${demo_device_hid_mouse_rtos_src}
     PROPERTIES COMPILE_DEFINITIONS
-               "UX_DEVICE_SIDE_ONLY")
+               "EXTERNAL_MAIN;DEMO_TEST;EXTERNAL_DCD_INITIALIZE;DEVICE_HID_MOUSE_DEMO")
   target_link_libraries(${test_name} PRIVATE test_utility)
   add_test(${CMAKE_BUILD_TYPE}::${test_name} ${test_name})
 endforeach()

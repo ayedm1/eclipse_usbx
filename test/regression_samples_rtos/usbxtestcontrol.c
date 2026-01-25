@@ -99,8 +99,8 @@ void    tx_application_define(void *first_unused_memory)
 
     /* Create the test control thread.  */
     tx_thread_create(&test_control_thread, "test control thread", test_control_thread_entry, 0,
-            test_control_thread_stack, TEST_STACK_SIZE,
-            17, 15, TX_NO_TIME_SLICE, TX_AUTO_START);
+                      test_control_thread_stack, TEST_STACK_SIZE,
+                      17, 15, UX_NO_TIME_SLICE, UX_AUTO_START);
 
     /* Remember the free memory pointer.  */
     test_free_memory_ptr =  &tests_memory[0];
