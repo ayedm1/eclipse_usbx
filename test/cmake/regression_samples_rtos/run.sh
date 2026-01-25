@@ -1,16 +1,26 @@
 #!/bin/bash
 
-cd $(dirname $0)
+set -euo pipefail
 
-# Checkout externals
-[ -d externals ] || mkdir ../../externals
-git clone https://github.com/eclipse-threadx/threadx.git ../../externals/threadx
+cd "$(dirname "$0")"
+
+# Checkout externals (idempotent)
+EXTERNALS_DIR="../../externals"
+THREADX_DIR="$EXTERNALS_DIR/threadx"
+
+mkdir -p "$EXTERNALS_DIR"
+
+if [ ! -d "$THREADX_DIR/.git" ]; then
+  git clone --depth 1 https://github.com/eclipse-threadx/threadx.git "$THREADX_DIR"
+fi
 
 
 # Add junit output for ctest generation
-if ! grep -q "\-\-output\-junit \$1.xml" ../../externals/threadx/scripts/cmake_bootstrap.sh; then
-  sed -i 's/ctest $parallel --timeout 1000 -O $1.txt/& --output-junit $1.xml/g' ../../externals/threadx/scripts/cmake_bootstrap.sh
+BOOTSTRAP_SH="$THREADX_DIR/scripts/cmake_bootstrap.sh"
+
+if ! grep -q "\-\-output\-junit \$1.xml" "$BOOTSTRAP_SH"; then
+  sed -i 's/ctest $parallel --timeout 1000 -O $1.txt/& --output-junit $1.xml/g' "$BOOTSTRAP_SH"
 fi
 
-[ -f .run.sh ] || ln -sf ../../externals/threadx/scripts/cmake_bootstrap.sh .run.sh
+[ -f .run.sh ] || ln -sf "$BOOTSTRAP_SH" .run.sh
 ./.run.sh $*
