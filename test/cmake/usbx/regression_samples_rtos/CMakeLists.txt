@@ -10,25 +10,10 @@ set(ux_sample_device_hid_mouse_test_cases
     ${SOURCE_DIR}/usbx_hid_mouse_demo_device_rtos_test.c
 )
 
-
 set(test_utility_files
     ${SOURCE_DIR}/usbxtestcontrol.c
-    ${SOURCE_DIR}/ux_test.c
-    ${SOURCE_DIR}/ux_host_class_dummy.c
-    ${SOURCE_DIR}/ux_host_class_dummy.h
-    ${SOURCE_DIR}/ux_device_class_dummy.c
-    ${SOURCE_DIR}/ux_device_class_dummy.h
-    ${SOURCE_DIR}/ux_device_class_dummy_hub.c
-    ${SOURCE_DIR}/ux_device_class_dummy_hub.h
-    # ${SOURCE_DIR}/ux_device_class_dummy_printer.c
-    # ${SOURCE_DIR}/ux_device_class_dummy_printer.h
-    ${SOURCE_DIR}/ux_test_utility_sim_no_overriding.c
-    ${SOURCE_DIR}/ux_test_race_condition_overrides.c
-    ${SOURCE_DIR}/ux_test_dcd_sim_slave.c
-    ${SOURCE_DIR}/ux_test_hcd_sim_host.c
-    ${SOURCE_DIR}/ux_test_utility_sim.c
-    ${SOURCE_DIR}/ux_test_standalone_references.c
-    ${SOURCE_DIR}/usbx_ux_host_class_storage_fx_driver.c)
+    ${SOURCE_DIR}/ux_test.c)
+
 add_library(test_utility ${test_utility_files})
 target_link_libraries(test_utility PUBLIC azrtos::usbx azrtos::threadx)
 target_compile_definitions(test_utility PUBLIC CTEST)
