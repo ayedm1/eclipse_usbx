@@ -110,6 +110,14 @@ UCHAR   next_mouse_buttons;
         (mouse -> ux_host_class_hid_mouse_state == (ULONG) UX_HOST_CLASS_INSTANCE_LIVE))
     {
 
+        status = ux_host_class_hid_mouse_buttons_get(mouse, &cur_mouse_buttons);
+        if (status != UX_SUCCESS)
+        {
+
+            printf("Error on line %d\n", __LINE__);
+            test_control_return(1);
+        }
+
         status = ux_host_class_hid_mouse_position_get(mouse, &cur_mouse_x_position, &cur_mouse_y_position);
         if (status != UX_SUCCESS)
         {
@@ -153,6 +161,8 @@ UCHAR   next_mouse_buttons;
     }
 
   }
+
+  
 }
 
 UINT ux_host_event_callback(ULONG event, UX_HOST_CLASS *current_class, VOID *current_instance)
