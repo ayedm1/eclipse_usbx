@@ -68,7 +68,7 @@
 #ifdef UX_DEMO_MOUSE_ABSOLUTE
 #define UX_DEMO_HID_MOUSE_CURSOR_MOVE   350
 #else /* UX_DEMO_MOUSE_ABSOLUTE */
-#define UX_DEMO_HID_MOUSE_CURSOR_MOVE   3
+#define UX_DEMO_HID_MOUSE_CURSOR_MOVE   20
 #define UX_DEMO_HID_MOUSE_CURSOR_MOVE_N 100
 #endif /* UX_DEMO_MOUSE_ABSOLUTE */
 
@@ -609,8 +609,8 @@ UINT ux_demo_device_hid_mouse_cursor_move(UX_SLAVE_CLASS_HID *device_hid)
 
 UINT                        status;
 UX_SLAVE_CLASS_HID_EVENT    device_hid_event;
-static UCHAR                mouse_x;
-static UCHAR                mouse_y;
+static CHAR                 mouse_x;
+static CHAR                 mouse_y;
 static UCHAR                mouse_move_count;
 static UCHAR                mouse_move_dir = UX_MOUSE_CURSOR_MOVE_RIGHT;
 
@@ -631,7 +631,7 @@ static UCHAR                mouse_move_dir = UX_MOUSE_CURSOR_MOVE_RIGHT;
     {
     case UX_MOUSE_CURSOR_MOVE_RIGHT:  /* +x.  */
 
-        mouse_x = UX_DEMO_HID_MOUSE_CURSOR_MOVE;
+        mouse_x = (CHAR)UX_DEMO_HID_MOUSE_CURSOR_MOVE;
         mouse_y = 0;
         mouse_move_count ++;
 
@@ -651,7 +651,7 @@ static UCHAR                mouse_move_dir = UX_MOUSE_CURSOR_MOVE_RIGHT;
     case UX_MOUSE_CURSOR_MOVE_DOWN:  /* +y.  */
 
         mouse_x = 0;
-        mouse_y = UX_DEMO_HID_MOUSE_CURSOR_MOVE;
+        mouse_y = (CHAR)UX_DEMO_HID_MOUSE_CURSOR_MOVE;
         mouse_move_count ++;
 
         if (mouse_move_count >= UX_DEMO_HID_MOUSE_CURSOR_MOVE_N)
@@ -689,7 +689,7 @@ static UCHAR                mouse_move_dir = UX_MOUSE_CURSOR_MOVE_RIGHT;
     case UX_MOUSE_CURSOR_MOVE_UP:  /* -y. */
 
         mouse_x = 0;
-        mouse_y = (UCHAR)(-UX_DEMO_HID_MOUSE_CURSOR_MOVE);
+        mouse_y = (CHAR)(-UX_DEMO_HID_MOUSE_CURSOR_MOVE);
         mouse_move_count ++;
 
         if (mouse_move_count >= UX_DEMO_HID_MOUSE_CURSOR_MOVE_N)

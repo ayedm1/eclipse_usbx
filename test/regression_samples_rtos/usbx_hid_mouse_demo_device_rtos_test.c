@@ -23,13 +23,13 @@ void usbx_hid_mouse_demo_device_rtos_test_application_define(void *first_unused_
 
     UINT status;
 
-    printf("Running HID Mouse Demo (direct) SIL Test............................ ");
+    printf("Running HID Mouse Demo Test............................ ");
 
 
     /* Initialize device side using the demo's API (creates its HID thread). */
     status = ux_demo_device_hid_init();
     
-    if (status != UX_SUCCESS) 
+    if (status != UX_SUCCESS)
     { 
         printf("Demo device init fail\n"); 
         test_control_return(1); 
@@ -96,14 +96,6 @@ SLONG   cur_mouse_x_position        = 0;
 SLONG   cur_mouse_y_position        = 0;
 SLONG   cur_mouse_wheel_movement    = 0;
 
-UINT    max_num_loops;
-UINT    num_loops;
-ULONG   num_attempts;
-ULONG   max_attempts;
-SLONG   next_mouse_wheel_movement;
-SLONG   next_mouse_x_position;
-SLONG   next_mouse_y_position;
-UCHAR   next_mouse_buttons;
 
   while (1)
   {
@@ -136,12 +128,16 @@ UCHAR   next_mouse_buttons;
             test_control_return(1);
         }
 
+        status = ux_host_class_hid_mouse_position_get(mouse, &cur_mouse_x_position, &cur_mouse_y_position);
+
+        if (cur_mouse_x_position != (cur_mouse_x_position+20))
+            test_control_return(1);
+
     }
     else
     {
         ux_utility_delay_ms(MS_TO_TICK(10));
     }
-
   }
 
 
