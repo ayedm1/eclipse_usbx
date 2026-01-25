@@ -94,7 +94,7 @@ static void tx_demo_thread_host_simulation_entry(ULONG arg)
 #ifdef CTEST
 void test_application_define(void *first_unused_memory)
 #else
-void usbx_hid_mouse_demo_device_rtos_direct_test_application_define(void *first_unused_memory)
+void usbx_hid_mouse_demo_device_rtos_test_application_define(void *first_unused_memory)
 #endif
 {
     UX_PARAMETER_NOT_USED(first_unused_memory);
