@@ -4,7 +4,6 @@
 #include "ux_api.h"
 #include <stdio.h>
 
-#include "ux_test.h"
 #define TEST_STACK_SIZE         6144
 
 /* Define the test control USBX objects...  */
@@ -50,17 +49,12 @@ VOID        (*test_entry)(void *);
 } TEST_ENTRY;
 
 /* CTest application define  */
-void test_application_define(void *first_unused_memory);
 
 void usbx_hid_mouse_demo_device_rtos_test_application_define(void *first_unused_memory);
 
 /* Define the array of test entry points.  */
 TEST_ENTRY  test_control_tests[] =
 {
-#ifdef CTEST
-    test_application_define,
-#else
-
     usbx_hid_mouse_demo_device_rtos_test_application_define,
     UX_NULL,
 };
@@ -170,12 +164,6 @@ UINT    i;
 static VOID disable_test_actions(VOID)
 {
 
-    /* Note: There shouldn't be any actions left. */
-    ux_test_cleanup_everything();
-
-    ux_test_utility_sim_cleanup();
-    ux_test_hcd_sim_host_cleanup();
-    ux_test_dcd_sim_slave_cleanup();
 }
 
 

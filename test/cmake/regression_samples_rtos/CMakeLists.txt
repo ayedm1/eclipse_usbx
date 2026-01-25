@@ -75,30 +75,30 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../../ usbx)
 
 
 # Build ThreadX library once
-execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/run.sh build_libs)
-add_custom_target(build_libs ALL COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/run.sh
+execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/run.sh build_libs)
+add_custom_target(build_libs ALL COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/run.sh
                                          build_libs)
 
 add_dependencies(usbx build_libs)
-target_include_directories(usbx PUBLIC ${CMAKE_BINARY_DIR}/../libs/inc)
+target_include_directories(usbx PUBLIC ${CMAKE_BINARY_DIR}/libs/inc)
 
 add_library(threadx SHARED IMPORTED GLOBAL)
 add_library("azrtos::threadx" ALIAS threadx)
 set_target_properties(
   threadx PROPERTIES IMPORTED_LOCATION
-                     ${CMAKE_BINARY_DIR}/../libs/threadx/libthreadx.so)
+                     ${CMAKE_BINARY_DIR}/libs/threadx/libthreadx.so)
 
 add_library(filex SHARED IMPORTED GLOBAL)
 add_library("azrtos::filex" ALIAS filex)
 set_target_properties(
   filex PROPERTIES IMPORTED_LOCATION
-                   ${CMAKE_BINARY_DIR}/../libs/filex/libfilex.so)
+                   ${CMAKE_BINARY_DIR}/libs/filex/libfilex.so)
                
 add_library(netxduo SHARED IMPORTED GLOBAL)
 add_library("azrtos::netxduo" ALIAS netxduo)
 set_target_properties(
   netxduo PROPERTIES IMPORTED_LOCATION
-                     ${CMAKE_BINARY_DIR}/../libs/netxduo/libnetxduo.so)
+                     ${CMAKE_BINARY_DIR}/libs/netxduo/libnetxduo.so)
 
 target_compile_options(
   usbx
