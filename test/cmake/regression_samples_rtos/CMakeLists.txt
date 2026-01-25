@@ -99,7 +99,7 @@ add_library("azrtos::netxduo" ALIAS netxduo)
 set_target_properties(
   netxduo PROPERTIES IMPORTED_LOCATION
                      ${CMAKE_BINARY_DIR}/../libs/netxduo/libnetxduo.so)
-                     
+
 target_compile_options(
   usbx
   PRIVATE -Werror
@@ -119,6 +119,55 @@ target_compile_options(
           -Wlogical-op
           -Waggregate-return
           -Wfloat-equal)
+
+# Remove includes and files not needed from usbx build
+set(UX_STANDALONE_HOST_EXCLUDES
+  # ux_host_class_asix
+  # ux_host_class_audio
+  # ux_host_class_cdc_acm
+  # ux_host_class_cdc_ecm
+  # ux_host_class_gser
+  # ux_host_class_hid
+  # ux_host_class_hub
+  # ux_host_class_pima
+  # ux_host_class_printer
+  # ux_host_class_prolific
+  # ux_host_class_storage
+  # ux_host_class_swar
+  # ux_host_class_video
+  # ux_hcd_ehci
+  # ux_hcd_ohci
+)
+set(UX_STANDALONE_DEVICE_EXCLUDES
+  # ux_device_class_audio
+  # ux_device_class_cdc_acm
+  # ux_device_class_cdc_ecm
+  # ux_device_class_dfu
+  # ux_device_class_hid
+  # ux_device_class_pima
+  # ux_device_class_rndis
+  # ux_device_class_ccid
+  # ux_device_class_printer
+  # ux_device_class_video
+)
+set(UX_STANDALONE_UTILITY_EXCLUDES
+  # ux_utility_event
+  # ux_utility_delay
+  # ux_utility_mutex
+  # ux_utility_semaphore
+  # ux_utility_thread
+  # ux_utility_timer
+)
+
+set(UX_STANDALONE_PICTBRIDGE_EXCLUDES
+  # ux_pictbridge
+)
+set(UX_STANDALONE_NX_EXCLUDES
+  # ux_network_driver
+)
+set(UX_STANDALONE_FX_EXCLUDES
+  # ux_host_class_storage_driver_entry
+)
 
 set(samples_cases
     ${SOURCE_DIR}/usbx_hid_mouse_demo_device_rtos_test.c
