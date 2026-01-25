@@ -13,97 +13,10 @@ set(ux_sample_device_hid_mouse_test_cases
 set(test_utility_files
     ${SOURCE_DIR}/usbxtestcontrol.c
     ${SOURCE_DIR}/ux_test.c)
-
 add_library(test_utility ${test_utility_files})
 target_link_libraries(test_utility PUBLIC azrtos::usbx azrtos::threadx)
 target_compile_definitions(test_utility PUBLIC CTEST)
 
-if (CMAKE_BUILD_TYPE MATCHES "msrc_rtos_build")
-  set(test_cases
-    ${ux_msrc_test_cases}
-    ${ux_msrc_test_cases_rtos}
-  )
-elseif (CMAKE_BUILD_TYPE MATCHES "msrc_standalone_build")
-  set(test_cases
-    ${ux_msrc_test_cases}
-    ${ux_msrc_test_cases_standalone}
-  )
-elseif(NOT (CMAKE_BUILD_TYPE MATCHES "standalone.*"))
-  if (CMAKE_BUILD_TYPE MATCHES "nofx_.*")
-    set(test_cases
-      ${ux_class_storage_test_cases}
-    )
-  elseif (CMAKE_BUILD_TYPE MATCHES "memory_management_.*")
-    set(test_cases
-      ${ux_class_memory_management_test_cases}
-    )
-  else()
-    set(test_cases
-      ${ux_basic_test_cases}
-      ${ux_utility_test_cases}
-      ${ux_utility_os_test_cases}
-      ${ux_stack_test_cases}
-      ${ux_dpump_test_cases}
-      ${ux_class_hub_test_cases}
-      ${ux_device_class_storage_tx_test_cases}
-      ${ux_class_dfu_test_cases}
-      ${ux_class_print_test_cases}
-      ${ux_class_ccid_test_cases}
-      )
-    if(NOT (CMAKE_BUILD_TYPE MATCHES "optimized.*"))
-      list(APPEND test_cases
-        ${ux_stack_test_cases_hid}
-        ${ux_stack_test_cases_cdc}
-        ${ux_stack_cdc_acm_test_cases}
-        ${ux_class_cdc_acm_test_cases}
-        ${ux_class_audio_test_cases}
-        ${ux_class_rndis_test_cases}
-        ${ux_class_cdc_ecm_test_cases}
-        ${ux_class_hid_test_cases}
-        ${ux_class_video_test_cases}
-        ${ux_class_storage_test_cases}
-        ${ux_class_pima_test_cases}
-        ${ux_class_gser_test_cases}
-        ${ux_class_prolific_test_cases}
-        ${ux_class_swar_test_cases}
-        ${ux_msrc_test_cases}
-        )
-    endif()
-  endif()
-else()
-  set(test_cases
-      ${ux_basic_test_cases}
-      ${ux_utility_test_cases}
-      ${ux_dpump_test_cases}
-    )
-  if (CMAKE_BUILD_TYPE MATCHES "standalone_device.*")
-    list(APPEND test_cases
-      ${ux_utility_os_test_cases}
-      ${ux_class_storage_device_standalone_test_cases}
-      ${ux_class_cdc_acm_device_standalone_test_cases}
-      ${ux_class_video_device_standalone_test_cases}
-      ${ux_class_hid_device_standalone_test_cases}
-      ${ux_class_dfu_test_cases}
-      ${ux_msrc_test_cases}
-      ${ux_class_printer_device_standalone_test_cases}
-      ${ux_class_audio_device_standalone_test_cases}
-      ${ux_class_ccid_test_cases}
-      )
-  elseif (CMAKE_BUILD_TYPE MATCHES "standalone_host.*")
-    list(APPEND test_cases
-      ${ux_utility_os_test_cases}
-      ${ux_class_storage_host_standalone_test_cases}
-      ${ux_class_cdc_acm_host_standalone_test_cases}
-      ${ux_class_hid_host_standalone_test_cases}
-      ${ux_class_print_test_cases}
-      ${ux_class_hub_standalone_test_cases}
-    )
-  else ()
-    list(APPEND test_cases
-      ${ux_class_dfu_test_cases}
-    )
-  endif()
-endif()
 
 foreach(test_case ${test_cases})
   get_filename_component(test_name ${test_case} NAME_WE)
