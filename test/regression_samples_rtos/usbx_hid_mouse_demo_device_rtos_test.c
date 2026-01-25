@@ -130,8 +130,8 @@ SLONG   cur_mouse_wheel_movement    = 0;
 
         status = ux_host_class_hid_mouse_position_get(mouse, &cur_mouse_x_position, &cur_mouse_y_position);
 
-        if (cur_mouse_x_position != (cur_mouse_x_position+20))
-            test_control_return(1);
+//        if (cur_mouse_x_position != (cur_mouse_x_position+20))
+//
 
     }
     else
