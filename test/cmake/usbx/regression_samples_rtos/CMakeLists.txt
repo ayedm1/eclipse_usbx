@@ -6,7 +6,7 @@ project(regression_test LANGUAGES C)
 get_filename_component(SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../regression_samples_rtos
                        ABSOLUTE)
 
-set(ux_sample_device_hid_mouse_test_cases
+set(samples_cases
     ${SOURCE_DIR}/usbx_hid_mouse_demo_device_rtos_test.c
 )
 
@@ -18,7 +18,7 @@ target_link_libraries(test_utility PUBLIC azrtos::usbx azrtos::threadx)
 target_compile_definitions(test_utility PUBLIC CTEST)
 
 
-foreach(test_case ${test_cases})
+foreach(test_case ${samples_cases})
   get_filename_component(test_name ${test_case} NAME_WE)
   add_executable(${test_name} ${test_case})
   target_link_libraries(${test_name} PRIVATE test_utility)
