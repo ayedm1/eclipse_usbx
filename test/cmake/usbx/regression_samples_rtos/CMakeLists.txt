@@ -3,7 +3,7 @@ cmake_policy(SET CMP0057 NEW)
 
 project(regression_test LANGUAGES C)
 
-get_filename_component(SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../regression_samples_regression
+get_filename_component(SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../regression_samples_rtos
                        ABSOLUTE)
 
 set(ux_sample_device_hid_mouse_test_cases
@@ -11,8 +11,8 @@ set(ux_sample_device_hid_mouse_test_cases
 )
 
 set(test_utility_files
-    ${SOURCE_DIR}/usbxtestcontrol.c
-    ${SOURCE_DIR}/ux_test.c)
+    ${SOURCE_DIR}/usbxtestcontrol.c)
+    
 add_library(test_utility ${test_utility_files})
 target_link_libraries(test_utility PUBLIC azrtos::usbx azrtos::threadx)
 target_compile_definitions(test_utility PUBLIC CTEST)
