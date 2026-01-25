@@ -219,6 +219,56 @@ UINT    old_posture =  TX_INT_ENABLE;
     tx_thread_resume(&test_control_thread);
 }
 
+void  test_control_return(UINT status)
+{
 
+UINT    old_posture =  TX_INT_ENABLE;
+
+    disable_test_actions();
+
+    /* Save the status in a global.  */
+    test_control_return_status =  status;
+
+    /* Ensure interrupts are enabled.  */
+    old_posture =  tx_interrupt_control(TX_INT_ENABLE);
+
+    /* Determine if it was successful or not.  */
+    if (status)
+        test_control_failed_tests++;
+    else
+        test_control_successful_tests++;
+
+    /* Now check for system errors.  */
+
+    /* Is preempt disable flag set?  */
+    if (_tx_thread_preempt_disable)
+    {
+
+        /* System error - preempt disable should never be set inside of a thread!  */
+        printf("    ***** SYSTEM ERROR ***** _tx_thread_preempt_disable is non-zero!\n");
+        test_control_system_errors++;
+    }
+
+    /* Is system state set?  */
+    if (_tx_thread_system_state)
+    {
+
+        /* System error - system state should never be set inside of a thread!  */
+        printf("    ***** SYSTEM ERROR ***** _tx_thread_system_state is non-zero!\n");
+        test_control_system_errors++;
+    }
+
+    /* Are interrupts disabled?  */
+    if (old_posture == TX_INT_DISABLE)
+    {
+
+        /* System error - interrupts should always be enabled in our test threads!  */
+        printf("    ***** SYSTEM ERROR ***** test returned with interrupts disabled!\n");
+        test_control_system_errors++;
+    }
+
+    /* Resume the control thread to fully exit the test.  */
+    tx_thread_resume(&test_control_thread);
+}
 
 
