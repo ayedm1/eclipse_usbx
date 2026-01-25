@@ -176,6 +176,9 @@ set(samples_cases
     ${SOURCE_DIR}/usbx_hid_mouse_demo_device_rtos_test.c
 )
 
+set(demo_device_hid_mouse_rtos_src
+  ${CMAKE_CURRENT_LIST_DIR}/../../../samples/demo_device_hid_mouse_rtos.c)
+
 set(test_utility_files
     ${SOURCE_DIR}/usbxtestcontrol.c)
 
@@ -188,6 +191,11 @@ target_compile_definitions(test_utility PUBLIC CTEST)
 foreach(test_case ${samples_cases})
   get_filename_component(test_name ${test_case} NAME_WE)
   add_executable(${test_name} ${test_case})
+  target_sources(${test_name} PRIVATE ${demo_device_hid_mouse_rtos_src})
+  set_source_files_properties(
+    ${demo_device_hid_mouse_rtos_src}
+    PROPERTIES COMPILE_DEFINITIONS
+               "UX_DEVICE_SIDE_ONLY")
   target_link_libraries(${test_name} PRIVATE test_utility)
   add_test(${CMAKE_BUILD_TYPE}::${test_name} ${test_name})
 endforeach()
