@@ -18,20 +18,20 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../libs/nx_user.h
 
 # Set build configurations
 # TODO: add when available : standalone_otg_build
-set(BUILD_CONFIGURATIONS 
-  default_build_coverage 
-  error_check_build_full_coverage 
-  tracex_enable_build 
-  device_buffer_owner_build 
+set(BUILD_CONFIGURATIONS
+  default_build_coverage
+  error_check_build_full_coverage
+  tracex_enable_build
+  device_buffer_owner_build
   device_zero_copy_build
-  nofx_build_coverage 
-  optimized_build 
-  standalone_device_build_coverage 
-  standalone_device_buffer_owner_build 
+  nofx_build_coverage
+  optimized_build
+  standalone_device_build_coverage
+  standalone_device_buffer_owner_build
   standalone_device_zero_copy_build
-  standalone_host_build_coverage 
-  standalone_build_coverage 
-  generic_build 
+  standalone_host_build_coverage
+  standalone_build_coverage
+  generic_build
   otg_support_build
   memory_management_build_coverage
   msrc_rtos_build
@@ -252,6 +252,7 @@ endif()
 # TODO: Unmask after adding sample for STANDALONE
 if(NOT (CMAKE_BUILD_TYPE MATCHES "standalone.*"))
   add_subdirectory(../usbx/samples samples)
+  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/regression_samples_rtos regression_samples_rtos)
 endif()
 
 # Coverage
