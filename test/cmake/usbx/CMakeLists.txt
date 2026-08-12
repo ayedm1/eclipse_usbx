@@ -267,7 +267,8 @@ add_custom_target(build_libs ALL COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/run.sh
                                          build_libs)
 
 add_dependencies(usbx build_libs)
-target_include_directories(usbx PUBLIC ${CMAKE_BINARY_DIR}/../libs/inc)
+target_include_directories(usbx PUBLIC ${CMAKE_BINARY_DIR}/../libs/inc
+                                              ${CMAKE_CURRENT_SOURCE_DIR}/../../externals/threadx/common/inc)
 
 add_library(threadx SHARED IMPORTED GLOBAL)
 add_library("azrtos::threadx" ALIAS threadx)

@@ -24,7 +24,7 @@ jobs:
       TEST_NAME: ${{ inputs.test_name || 'usbx_hid_mouse_demo_device_rtos_test' }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: true
 
