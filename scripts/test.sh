@@ -10,4 +10,4 @@
 # SPDX-License-Identifier: MIT
 ##############################################################################
 
-CTEST_PARALLEL_LEVEL=4 $(dirname `realpath $0`)/../test/cmake/usbx/run.sh test $@
+CTEST_PARALLEL_LEVEL=4 $(dirname `realpath $0`)/../test/usbx_test/cmake/usbx/run.sh test $@

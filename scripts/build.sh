@@ -10,4 +10,4 @@
 # SPDX-License-Identifier: MIT
 ##############################################################################
 
-$(dirname `realpath $0`)/../test/cmake/usbx/run.sh build $@
+$(dirname `realpath $0`)/../test/usbx_test/cmake/usbx/run.sh build $@
