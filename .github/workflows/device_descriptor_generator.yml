@@ -1,0 +1,33 @@
+name: device_descriptor_generator
+
+on:
+  push:
+    branches: [ dev, master, device_descriptor_generator ]
+    paths:
+      - 'device_descriptor_generator/**'
+      - 'test/descriptor_generator_regression/**'
+      - '.github/workflows/device_descriptor_generator.yml'
+  pull_request:
+    paths:
+      - 'device_descriptor_generator/**'
+      - 'test/descriptor_generator_regression/**'
+      - '.github/workflows/device_descriptor_generator.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  descriptor_generator_regression_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: |
+          pip install pytest playwright
+          playwright install --with-deps chromium
+      - name: Run descriptor generator regression tests
+        run: pytest test/descriptor_generator_regression -v

@@ -244,6 +244,18 @@ button {
     transition: background 0.3s;
 }
 
+.output-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 6px;
+}
+
+.output-actions .copy-button {
+    position: static;
+}
+
 .copy-button.btn-with-icon {
     gap: 6px;
 }

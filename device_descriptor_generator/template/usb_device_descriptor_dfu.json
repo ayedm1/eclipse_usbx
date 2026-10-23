@@ -1,0 +1,66 @@
+{
+  "device": {
+    "idVendor": "0x1A0A",
+    "idProduct": "0x5740",
+    "manufacturer": "Eclipse Threadx",
+    "product": "USBX",
+    "serialNumber": "USBDEVICE00001",
+    "bcdDevice": "0x0100",
+    "bcdUSB": "0x0200",
+    "bDeviceClass": "0x00",
+    "bDeviceSubClass": "0x00",
+    "bDeviceProtocol": "0x00",
+    "bMaxPacketSize0": 8,
+    "iManufacturer": 1,
+    "iProduct": 2,
+    "iSerialNumber": 3,
+    "bNumConfigurations": 1
+  },
+  "configuration": {
+    "bNumInterfaces": 1,
+    "bConfigurationValue": "0x01",
+    "iConfiguration": 4,
+    "configurationString": "",
+    "bmAttributes": "0xC0",
+    "bMaxPower": 50,
+    "highSpeed": {
+      "iConfigurationHS": 5,
+      "configurationStringHS": "HIGH SPEED"
+    }
+  },
+  "languageIds": [
+    {
+      "code": "0x0409",
+      "name": "English (US)"
+    }
+  ],
+  "speeds": {
+    "fullSpeed": true,
+    "highSpeed": true
+  },
+  "classOrder": [
+    "dfu"
+  ],
+  "instanceOrder": [
+    "dfu:1"
+  ],
+  "customStrings": [],
+  "classes": {
+    "dfu": {
+      "instances": [
+        {
+          "interfaceConfig": {
+            "dfuBInterfaceSubClass": "0x01",
+            "dfuBInterfaceProtocol": "0x02",
+            "dfuBmAttributes": "0x0B",
+            "dfuDetachTimeout": 1000,
+            "dfuTransferSize": 1024,
+            "dfuBcdVersion": "0x0110",
+            "dfuIInterface": 6,
+            "dfuInterfaceString": "DFU interface"
+          }
+        }
+      ]
+    }
+  }
+}

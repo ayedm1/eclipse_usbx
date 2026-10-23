@@ -1,0 +1,116 @@
+{
+  "deviceType": "joystick",
+  "descriptor": [
+    {
+      "tag": "USAGE_PAGE",
+      "value": 1,
+      "comment": "Generic Desktop"
+    },
+    {
+      "tag": "USAGE",
+      "value": 4,
+      "comment": "Joystick"
+    },
+    {
+      "tag": "COLLECTION",
+      "value": 1,
+      "comment": "Application"
+    },
+    {
+      "tag": "USAGE",
+      "value": 1,
+      "comment": "Pointer"
+    },
+    {
+      "tag": "COLLECTION",
+      "value": 0,
+      "comment": "Physical"
+    },
+    {
+      "tag": "USAGE",
+      "value": 48,
+      "comment": "X"
+    },
+    {
+      "tag": "USAGE",
+      "value": 49,
+      "comment": "Y"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 0,
+      "comment": "Logical Min (0)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 255,
+      "comment": "Logical Max (255)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 8,
+      "comment": "8 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 2,
+      "comment": "2 axes"
+    },
+    {
+      "tag": "INPUT",
+      "value": 2,
+      "comment": "Data, Variable, Absolute"
+    },
+    {
+      "tag": "END_COLLECTION",
+      "value": 0,
+      "comment": "End Physical"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 9,
+      "comment": "Button"
+    },
+    {
+      "tag": "USAGE_MINIMUM",
+      "value": 1,
+      "comment": "Button 1"
+    },
+    {
+      "tag": "USAGE_MAXIMUM",
+      "value": 8,
+      "comment": "Button 8"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 0,
+      "comment": "Logical Min (0)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 1,
+      "comment": "Logical Max (1)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 1,
+      "comment": "1 bit"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 8,
+      "comment": "8 buttons"
+    },
+    {
+      "tag": "INPUT",
+      "value": 2,
+      "comment": "Data, Variable, Absolute"
+    },
+    {
+      "tag": "END_COLLECTION",
+      "value": 0,
+      "comment": "End Application"
+    }
+  ],
+  "timestamp": "2026-03-24T11:14:13.178Z"
+}

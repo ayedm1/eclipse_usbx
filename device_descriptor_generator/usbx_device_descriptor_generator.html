@@ -627,11 +627,11 @@
                 <div class="output-tabs">
                     <button class="tab-button btn-with-icon active" onclick="switchTab('c-array', this)">
                         <span class="btn-icon" aria-hidden="true">C</span>
-                        <span class="btn-label">Array</span>
+                        <span class="btn-label">Code</span>
                     </button>
-                    <button class="tab-button btn-with-icon" type="button" onclick="saveJSON()" aria-label="Save configured parameters as JSON">
-                        <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
-                        <span class="btn-label">Save JSON</span>
+                    <button class="tab-button btn-with-icon" type="button" onclick="showJSONCode(this)" aria-label="Show configured parameters as JSON code">
+                        <span class="btn-icon" aria-hidden="true">{ }</span>
+                        <span class="btn-label">JSON Code</span>
                     </button>
                     <button class="tab-button btn-with-icon" onclick="switchTab('hex', this)">
                         <span class="btn-icon" aria-hidden="true">0x</span>
@@ -645,40 +645,64 @@
 
                 <div id="c-array" class="tab-content active">
                     <div class="output-box">
+                        <div class="output-actions">
                         <button class="copy-button btn-with-icon" onclick="copyToClipboard('c-array-output', this)">
                             <span class="btn-icon" aria-hidden="true">&#x2398;</span>
                             <span class="btn-label">Copy</span>
                         </button>
+                        <button class="copy-button btn-with-icon" onclick="saveOutput('c-array-output', 'ux_device_descriptor.c')">
+                            <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
+                            <span class="btn-label">Save</span>
+                        </button>
+                        </div>
                         <pre id="c-array-output">/* Click "Generate Descriptor" to see output */</pre>
                     </div>
                 </div>
 
                 <div id="json-array" class="tab-content">
                     <div class="output-box">
+                        <div class="output-actions">
                         <button class="copy-button btn-with-icon" onclick="copyToClipboard('json-array-output', this)">
                             <span class="btn-icon" aria-hidden="true">&#x2398;</span>
                             <span class="btn-label">Copy</span>
                         </button>
+                        <button class="copy-button btn-with-icon" onclick="saveOutput('json-array-output', 'ux_device_descriptor.json')">
+                            <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
+                            <span class="btn-label">Save</span>
+                        </button>
+                        </div>
                         <pre id="json-array-output">/* Click "Generate Descriptor" to see output */</pre>
                     </div>
                 </div>
 
                 <div id="hex" class="tab-content">
                     <div class="output-box">
+                        <div class="output-actions">
                         <button class="copy-button btn-with-icon" onclick="copyToClipboard('hex-output', this)">
                             <span class="btn-icon" aria-hidden="true">&#x2398;</span>
                             <span class="btn-label">Copy</span>
                         </button>
+                        <button class="copy-button btn-with-icon" onclick="saveOutput('hex-output', 'ux_device_descriptor_hex.txt')">
+                            <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
+                            <span class="btn-label">Save</span>
+                        </button>
+                        </div>
                         <pre id="hex-output">/* Click "Generate Descriptor" to see output */</pre>
                     </div>
                 </div>
 
                 <div id="readable" class="tab-content">
                     <div class="output-box">
+                        <div class="output-actions">
                         <button class="copy-button btn-with-icon" onclick="copyToClipboard('readable-output', this)">
                             <span class="btn-icon" aria-hidden="true">&#x2398;</span>
                             <span class="btn-label">Copy</span>
                         </button>
+                        <button class="copy-button btn-with-icon" onclick="saveOutput('readable-output', 'ux_device_descriptor_readable.txt')">
+                            <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
+                            <span class="btn-label">Save</span>
+                        </button>
+                        </div>
                         <pre id="readable-output">/* Click "Generate Descriptor" to see output */</pre>
                     </div>
                 </div>
