@@ -724,7 +724,8 @@
                 data-format="{{format}}"
                 data-bytes="{{bytes}}"
                 {{#if hasMin}}min="{{min}}"{{/if}}
-                {{#if hasMax}}max="{{max}}"{{/if}}>
+                {{#if hasMax}}max="{{max}}"{{/if}}
+                {{#if isFixed}}disabled{{/if}}>
             {{/if}}
         </div>
         {{/each}}
