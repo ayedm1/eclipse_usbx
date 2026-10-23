@@ -297,8 +297,26 @@ button {
     overflow: visible;
 }
 
+#class-config-cards {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Flatten class wrappers so instance cards of different classes can be interleaved with CSS order. */
+#class-config-cards > .card:not([style*="display: none"]),
+#class-config-cards > .card > .collapse.show,
+#class-config-cards > .card > .collapse > .card-body,
+#class-config-cards > .card > .collapse > .card-body > div[id$="-descriptor-fields"] {
+    display: contents !important;
+}
+
 #class-config-cards > .card > .card-header {
     display: none;
+}
+
+.class-card-header .class-reorder-button {
+    background: rgba(255, 255, 255, 0.9);
+    margin-right: 8px;
 }
 
 #class-config-cards > .card > .collapse {

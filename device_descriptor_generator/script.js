@@ -67,9 +67,9 @@ const CONFIGURATION_STRING_FIELD_GROUPS = [
 ];
 
 const CLASS_ORDER_DEFAULT = [
+    'dfu',
     'hid',
     'msc',
-    'dfu',
     'printer',
     'video',
     'mtp',
@@ -1546,124 +1546,264 @@ function parseNumberValue(rawValue, field) {
     return parsed;
 }
 
-function getCurrentClassOrder() {
-    return classCardOrder.slice();
+const CLASS_INTERFACES_PER_INSTANCE = {
+    hid: 1,
+    msc: 1,
+    dfu: 1,
+    printer: 1,
+    video: 1,
+    mtp: 1,
+    ptp: 1,
+    cdc: 2,
+    rndis: 2,
+    ecm: 2,
+    audio: 2,
+    audio2: 2
+};
+
+const CLASS_FIELDS_CONTAINER_IDS = {
+    hid: 'hid-descriptor-fields',
+    msc: 'mass-storage-descriptor-fields',
+    dfu: 'dfu-descriptor-fields',
+    printer: 'printer-descriptor-fields',
+    video: 'video-descriptor-fields',
+    mtp: 'mtp-descriptor-fields',
+    ptp: 'ptp-descriptor-fields',
+    cdc: 'cdc-descriptor-fields',
+    rndis: 'rndis-descriptor-fields',
+    ecm: 'ecm-descriptor-fields',
+    audio: 'audio-descriptor-fields',
+    audio2: 'audio2-descriptor-fields'
+};
+
+// Ordered list of { className, instance } entries: the order of every class instance in the descriptors.
+let classInstanceOrder = [];
+
+function getEnabledInstanceCount(className) {
+    const config = CLASS_CARD_CONFIG[className];
+    const checkbox = config ? document.getElementById(config.checkboxId) : null;
+    if (!checkbox || !checkbox.checked) {
+        return 0;
+    }
+
+    const countInput = document.getElementById(`class-num-${className}`);
+    return Math.max(1, parseInt(countInput && countInput.value, 10) || 1);
+}
+
+// Returns the active instance order. Entries of disabled classes stay stored so their position is kept.
+function getInstanceOrder() {
+    const counts = {};
+    classCardOrder.forEach((className) => {
+        counts[className] = getEnabledInstanceCount(className);
+    });
+
+    const seen = new Set();
+    const order = classInstanceOrder.filter((entry) => {
+        const key = `${entry.className}:${entry.instance}`;
+        if (seen.has(key) || !CLASS_CARD_CONFIG[entry.className]) {
+            return false;
+        }
+
+        seen.add(key);
+        return true;
+    });
+
+    classCardOrder.forEach((className, classIndex) => {
+        for (let instance = 1; instance <= counts[className]; instance++) {
+            const key = `${className}:${instance}`;
+            if (seen.has(key)) {
+                continue;
+            }
+
+            let position = order.length;
+            if (instance > 1) {
+                const previous = order.findIndex((entry) => entry.className === className && entry.instance === instance - 1);
+                if (previous !== -1) {
+                    position = previous + 1;
+                }
+            } else {
+                const later = order.findIndex((entry) => classCardOrder.indexOf(entry.className) > classIndex);
+                if (later !== -1) {
+                    position = later;
+                }
+            }
+
+            order.splice(position, 0, { className, instance });
+            seen.add(key);
+        }
+    });
+
+    classInstanceOrder = order;
+    return order.filter((entry) => entry.instance <= (counts[entry.className] || 0));
 }
 
 function getEnabledClassOrder() {
-    return classCardOrder.filter((className) => {
-        const config = CLASS_CARD_CONFIG[className];
-        const checkbox = config ? document.getElementById(config.checkboxId) : null;
-        return !!(checkbox && checkbox.checked);
+    const classes = [];
+    getInstanceOrder().forEach((entry) => {
+        if (!classes.includes(entry.className)) {
+            classes.push(entry.className);
+        }
     });
+
+    return classes;
 }
 
-function applyClassCardOrder() {
-    const container = document.getElementById('class-config-cards');
-    if (!container) {
+function getCurrentClassOrder() {
+    const enabled = getEnabledClassOrder();
+    return enabled.concat(classCardOrder.filter((className) => !enabled.includes(className)));
+}
+
+// First interface number used by a class instance, following the current instance order.
+function getInstanceInterfaceStart(className, instance) {
+    let offset = 0;
+    for (const entry of getInstanceOrder()) {
+        if (entry.className === className && entry.instance === instance) {
+            break;
+        }
+
+        offset += CLASS_INTERFACES_PER_INSTANCE[entry.className] || 1;
+    }
+
+    return offset;
+}
+
+// Splits a class segment into per-instance parts using the instance number of each comment tag.
+function storeClassInstanceSegments(classSegments, className, descriptorPart, commentsPart) {
+    const count = getEnabledInstanceCount(className);
+    const instances = [];
+    let valid = descriptorPart.length === commentsPart.length;
+
+    if (valid) {
+        let current = 1;
+        commentsPart.forEach((comment) => {
+            const match = /^\[[^\]]*-(\d+)\]/.exec(comment);
+            if (match) {
+                current = parseInt(match[1], 10);
+            }
+
+            instances.push(current);
+        });
+
+        const runs = [];
+        instances.forEach((instance, index) => {
+            if (index === 0 || instance !== instances[index - 1]) {
+                runs.push(instance);
+            }
+        });
+        valid = new Set(runs).size === runs.length && runs.every((instance) => instance >= 1 && instance <= count);
+    }
+
+    if (!valid) {
+        classSegments.set(`${className}:1`, { descriptorPart, commentsPart });
         return;
     }
 
-    classCardOrder.forEach((className) => {
-        const config = CLASS_CARD_CONFIG[className];
-        const card = config ? document.getElementById(config.cardId) : null;
-        if (card) {
-            container.appendChild(card);
+    instances.forEach((instance, index) => {
+        const key = `${className}:${instance}`;
+        if (!classSegments.has(key)) {
+            classSegments.set(key, { descriptorPart: [], commentsPart: [] });
+        }
+
+        const segment = classSegments.get(key);
+        segment.descriptorPart.push(descriptorPart[index]);
+        segment.commentsPart.push(commentsPart[index]);
+    });
+}
+
+function getOrderedClassSegments(classSegments) {
+    const segments = [];
+    getInstanceOrder().forEach((entry) => {
+        const segment = classSegments.get(`${entry.className}:${entry.instance}`);
+        if (segment) {
+            segments.push(segment);
         }
     });
+
+    return segments;
 }
 
 function updateClassReorderButtonsState() {
-    const enabledOrder = getEnabledClassOrder();
-    const hasMultipleEnabled = enabledOrder.length > 1;
+    const order = getInstanceOrder();
 
-    classCardOrder.forEach((className) => {
-        const card = document.getElementById(CLASS_CARD_CONFIG[className].cardId);
-        if (!card) {
+    CLASS_ORDER_DEFAULT.forEach((className) => {
+        const container = document.getElementById(CLASS_FIELDS_CONTAINER_IDS[className]);
+        if (!container) {
             return;
         }
 
-        const upBtn = card.querySelector('.class-reorder-up');
-        const downBtn = card.querySelector('.class-reorder-down');
-        if (!upBtn || !downBtn) {
-            return;
-        }
+        Array.from(container.children).forEach((card, index) => {
+            const instance = index + 1;
+            const position = order.findIndex((entry) => entry.className === className && entry.instance === instance);
+            const heading = card.querySelector(':scope > .card-header > h2.mb-0');
+            const titleButton = heading ? heading.querySelector('.btn-collapse') : null;
+            if (position === -1 || !heading || !titleButton) {
+                return;
+            }
 
-        const enabledIndex = enabledOrder.indexOf(className);
-        const isEnabled = enabledIndex !== -1;
+            card.style.order = String(position);
 
-        upBtn.disabled = !hasMultipleEnabled || !isEnabled || enabledIndex === 0;
-        downBtn.disabled = !hasMultipleEnabled || !isEnabled || enabledIndex === enabledOrder.length - 1;
+            let actions = heading.querySelector(':scope > .class-reorder-actions');
+            if (!actions) {
+                heading.classList.add('class-card-header');
+
+                const titleWrap = document.createElement('div');
+                titleWrap.className = 'class-title-wrap';
+                heading.insertBefore(titleWrap, titleButton);
+                titleWrap.appendChild(titleButton);
+
+                const title = titleButton.textContent.trim();
+                actions = document.createElement('div');
+                actions.className = 'class-reorder-actions';
+                actions.innerHTML = `
+                    <button type="button" class="class-reorder-button class-reorder-up" title="Move up" aria-label="Move ${title} up" onclick="moveClassInstance('${className}', ${instance}, -1)">
+                        <span class="class-reorder-icon" aria-hidden="true">&#x25B2;</span>
+                    </button>
+                    <button type="button" class="class-reorder-button class-reorder-down" title="Move down" aria-label="Move ${title} down" onclick="moveClassInstance('${className}', ${instance}, 1)">
+                        <span class="class-reorder-icon" aria-hidden="true">&#x25BC;</span>
+                    </button>
+                `;
+                heading.appendChild(actions);
+            }
+
+            actions.querySelector('.class-reorder-up').disabled = position === 0;
+            actions.querySelector('.class-reorder-down').disabled = position === order.length - 1;
+        });
     });
 }
 
-function moveClassCard(className, direction) {
-    const enabledOrder = getEnabledClassOrder();
-    const enabledIndex = enabledOrder.indexOf(className);
-    if (enabledIndex === -1) {
+function moveClassInstance(className, instance, direction) {
+    const active = getInstanceOrder();
+    const index = active.findIndex((entry) => entry.className === className && entry.instance === instance);
+    const targetEntry = active[index + direction];
+    if (index === -1 || !targetEntry) {
         return;
     }
 
-    const targetEnabledIndex = enabledIndex + direction;
-    if (targetEnabledIndex < 0 || targetEnabledIndex >= enabledOrder.length) {
-        return;
-    }
+    const first = classInstanceOrder.findIndex((entry) => entry.className === className && entry.instance === instance);
+    const second = classInstanceOrder.findIndex((entry) => entry.className === targetEntry.className && entry.instance === targetEntry.instance);
+    [classInstanceOrder[first], classInstanceOrder[second]] = [classInstanceOrder[second], classInstanceOrder[first]];
 
-    const swapClassName = enabledOrder[targetEnabledIndex];
-    const currentIndex = classCardOrder.indexOf(className);
-    const swapIndex = classCardOrder.indexOf(swapClassName);
-    if (currentIndex === -1 || swapIndex === -1) {
-        return;
-    }
-
-    classCardOrder[currentIndex] = swapClassName;
-    classCardOrder[swapIndex] = className;
-
-    applyClassCardOrder();
     updateClassReorderButtonsState();
     generateDescriptor();
 }
 
-function injectClassCardReorderControls() {
-    classCardOrder.forEach((className) => {
-        const config = CLASS_CARD_CONFIG[className];
-        const card = document.getElementById(config.cardId);
-        if (!card) {
-            return;
-        }
+function initClassInstanceReordering() {
+    const container = document.getElementById('class-config-cards');
+    if (container) {
+        let scheduled = false;
+        new MutationObserver(() => {
+            if (scheduled) {
+                return;
+            }
 
-        const header = card.querySelector('.card-header');
-        const heading = header ? header.querySelector('h2.mb-0') : null;
-        const titleButton = heading ? heading.querySelector('.btn-collapse') : null;
-        if (!header || !heading || !titleButton) {
-            return;
-        }
+            scheduled = true;
+            requestAnimationFrame(() => {
+                scheduled = false;
+                updateClassReorderButtonsState();
+            });
+        }).observe(container, { childList: true, subtree: true });
+    }
 
-        if (header.querySelector('.class-reorder-actions')) {
-            return;
-        }
-
-        heading.classList.add('class-card-header');
-
-        const titleWrap = document.createElement('div');
-        titleWrap.className = 'class-title-wrap';
-        heading.insertBefore(titleWrap, titleButton);
-        titleWrap.appendChild(titleButton);
-
-        const actions = document.createElement('div');
-        actions.className = 'class-reorder-actions';
-        actions.innerHTML = `
-            <button type="button" class="class-reorder-button class-reorder-up" title="Move up" aria-label="Move ${config.title} up" onclick="moveClassCard('${className}', -1)">
-                <span class="class-reorder-icon" aria-hidden="true">&#x25B2;</span><span class="sr-only">Move up</span>
-            </button>
-            <button type="button" class="class-reorder-button class-reorder-down" title="Move down" aria-label="Move ${config.title} down" onclick="moveClassCard('${className}', 1)">
-                <span class="class-reorder-icon" aria-hidden="true">&#x25BC;</span><span class="sr-only">Move down</span>
-            </button>
-        `;
-        heading.appendChild(actions);
-    });
-
-    applyClassCardOrder();
     updateClassReorderButtonsState();
 }
 
@@ -4528,18 +4668,7 @@ function buildHighSpeedDescriptor() {
             return Math.max(1, parseInt(countInput && countInput.value, 10) || 1);
         };
 
-        const getClassInterfaceOffset = (targetClassName) => {
-            let offset = 0;
-            for (const className of getCurrentClassOrder()) {
-                if (className === targetClassName) {
-                    break;
-                }
-
-                offset += getEnabledClassInstances(className) * (classInterfacePerInstance[className] || 1);
-            }
-
-            return offset;
-        };
+        const getClassInterfaceOffset = (targetClassName, instance = 1) => getInstanceInterfaceStart(targetClassName, instance);
 
         const classSegments = new Map();
         const beginClassSegment = () => ({ descriptorStart: descriptor.length, commentsStart: commentsList.length });
@@ -4551,7 +4680,7 @@ function buildHighSpeedDescriptor() {
             commentsList.length = segmentStart.commentsStart;
 
             if (descriptorPart.length > 0) {
-                classSegments.set(className, { descriptorPart, commentsPart });
+                storeClassInstanceSegments(classSegments, className, descriptorPart, commentsPart);
             }
         };
 
@@ -4564,7 +4693,7 @@ function buildHighSpeedDescriptor() {
             for (let i = 1; i <= classNumber; i++) {
                 // Read form values using high-speed endpoint values
                 const interfaceValues = readInterfaceDescriptorValues(i);
-                interfaceValues.bInterfaceNumber = getClassInterfaceOffset('hid') + (i - 1);
+                interfaceValues.bInterfaceNumber = getClassInterfaceOffset('hid', i);
                 const hidDetailsValues = readHIDDetailsValues(i);
                 const endpointValues = readEndpointInDescriptorValuesHighSpeed(i);
                 const endpointOutValues = optionalEndpointState[i] && isProtocolNone(i) ? readEndpointOutDescriptorValuesHighSpeed(i) : null;
@@ -4674,7 +4803,7 @@ function buildHighSpeedDescriptor() {
                 const interfaceDescriptor = [
                     0x09,  // bLength
                     0x04,  // bDescriptorType (Interface)
-                    i - 1 + (hidCheckbox && hidCheckbox.checked ? parseInt(document.getElementById('class-num-hid').value) || 1 : 0), // bInterfaceNumber
+                    getClassInterfaceOffset('msc', i), // bInterfaceNumber
                     0x00,  // bAlternateSetting
                     0x02,  // bNumEndpoints (Bulk IN + Bulk OUT)
                     0x08,  // bInterfaceClass (Mass Storage)
@@ -4773,6 +4902,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('dfu', i) - (i - 1);
                 const dfuConfigValues = readDFUConfigValues(i);
 
                 const interfaceDescriptor = [
@@ -4830,6 +4960,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('printer', i) - (i - 1);
                 const printerConfigValues = readPrinterConfigValues(i);
                 const bulkInValuesHS = readPrinterBulkInValuesHS(i);
                 const bulkOutValuesHS = readPrinterBulkOutValuesHS(i);
@@ -4888,6 +5019,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('video', i) - (i - 1);
                 const videoConfigValues = readVideoConfigValues(i);
                 const bulkInValuesHS = readVideoBulkInValuesHS(i);
                 const bulkOutValuesHS = readVideoBulkOutValuesHS(i);
@@ -4936,6 +5068,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('mtp', i) - (i - 1);
                 const mtpConfigValues = readMTPConfigValues(i);
                 const bulkInValuesHS = readMTPBulkInValuesHS(i);
                 const bulkOutValuesHS = readMTPBulkOutValuesHS(i);
@@ -4987,6 +5120,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('ptp', i) - (i - 1);
                 const ptpConfigValues = readPTPConfigValues(i);
                 const bulkInValuesHS = readPTPBulkInValuesHS(i);
                 const bulkOutValuesHS = readPTPBulkOutValuesHS(i);
@@ -5042,6 +5176,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('cdc', i) - (i - 1) * 2;
                 // Read CDC ACM configuration values
                 const cdcConfigValues = readCDCConfigValues(i);
                 const notifyValuesHS = readCDCNotifyValuesHS(i);
@@ -5316,6 +5451,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('rndis', i) - (i - 1) * 2;
                 const rndisConfig = readRNDISConfigValues(i);
                 const notifyValuesHS = readRNDISNotifyValuesHS(i);
                 const bulkInValuesHS = readRNDISBulkInValuesHS(i);
@@ -5388,6 +5524,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('ecm', i) - (i - 1) * 2;
                 const ecmConfig = readECMConfigValues(i);
                 const notifyValuesHS = readECMNotifyValuesHS(i);
                 const bulkInValuesHS = readECMBulkInValuesHS(i);
@@ -5470,6 +5607,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('audio', i) - (i - 1) * 2;
                 const audioConfig = readAudioConfigValues(i);
                 const audioEpHS = readAudioEndpointValuesHS(i);
 
@@ -5737,6 +5875,7 @@ function buildHighSpeedDescriptor() {
             }
 
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('audio2', i) - (i - 1) * 2;
                 const audio2Config = readAudio2ConfigValues(i);
                 const audio2EpHS = readAudio2EndpointValuesHS(i);
 
@@ -6009,6 +6148,7 @@ function collectConfiguredParameters(formValues, configValues) {
             highSpeed: isHighSpeedEnabled
         },
         classOrder: getEnabledClassOrder(),
+        instanceOrder: getInstanceOrder().map((entry) => `${entry.className}:${entry.instance}`),
         customStrings: getCustomStringDescriptorValues().map((csd) => ({
             index: csd.index,
             text: csd.text,
@@ -6164,7 +6304,7 @@ function collectConfiguredParameters(formValues, configValues) {
         }
     ];
 
-    const classOrderIndex = new Map(classCardOrder.map((className, index) => [className, index]));
+    const classOrderIndex = new Map(getCurrentClassOrder().map((className, index) => [className, index]));
     const jsonClassToUiClass = {
         hid: 'hid',
         massStorage: 'msc',
@@ -6268,10 +6408,10 @@ function renderHexDump(descriptor) {
 // Helper: push all enabled USB class descriptors into the readable rows array.
 // className: 'hid'|'msc'|'dfu'|'printer'|'video'|'mtp'|'ptp'|'cdc'|'rndis'|'ecm'|'audio'|'audio2'
 // isHS: true for high-speed variant (use HS endpoint read functions)
-function pushReadableClassRows(rows, className, ifOffset, isHS) {
+function pushReadableClassRows(rows, className, ifOffset, isHS, countOverride) {
     const cb = document.getElementById(`class-${className}`);
     if (!cb || !cb.checked) return;
-    const n = parseInt((document.getElementById(`class-num-${className}`) || {}).value) || 1;
+    const n = countOverride || parseInt((document.getElementById(`class-num-${className}`) || {}).value) || 1;
     const speed = isHS ? 'High Speed' : 'Full Speed';
 
     const pushEp = (label, addr, attrs, pkt, interval) => {
@@ -6945,19 +7085,20 @@ function pushReadableClassRows(rows, className, ifOffset, isHS) {
     }
 }
 
-// Returns the interface offset for a class in the current class order.
-function getReadableClassIfOffset(className) {
-    const classIPR = { hid: 1, msc: 1, dfu: 1, printer: 1, video: 1, mtp: 1, ptp: 1, cdc: 2, rndis: 2, ecm: 2, audio: 2, audio2: 2 };
-    let offset = 0;
-    for (const cn of getCurrentClassOrder()) {
-        if (cn === className) break;
-        const cb = document.getElementById(`class-${cn}`);
-        if (cb && cb.checked) {
-            const inp = document.getElementById(`class-num-${cn}`);
-            offset += Math.max(1, parseInt(inp && inp.value, 10) || 1) * (classIPR[cn] || 1);
+// Adds the readable rows of every class instance, following the instance order.
+function pushReadableInstanceRows(rows, isHS) {
+    getInstanceOrder().forEach(({ className, instance }) => {
+        const perInstance = CLASS_INTERFACES_PER_INSTANCE[className] || 1;
+        const ifOffset = getInstanceInterfaceStart(className, instance) - (instance - 1) * perInstance;
+        const upToInstance = [];
+        pushReadableClassRows(upToInstance, className, ifOffset, isHS, instance);
+        const previous = [];
+        if (instance > 1) {
+            pushReadableClassRows(previous, className, ifOffset, isHS, instance - 1);
         }
-    }
-    return offset;
+
+        upToInstance.slice(previous.length).forEach((row) => rows.push(row));
+    });
 }
 
 function renderReadable(values, configValues, fullDescriptor) {
@@ -7001,9 +7142,7 @@ function renderReadable(values, configValues, fullDescriptor) {
     }
 
     // Add class descriptors (FS) in user-defined class order
-    for (const className of getCurrentClassOrder()) {
-        pushReadableClassRows(rows, className, getReadableClassIfOffset(className), false);
-    }
+    pushReadableInstanceRows(rows, false);
 
     // device_framework_high_speed section
     if (isHighSpeedEnabled) {
@@ -7057,9 +7196,7 @@ function renderReadable(values, configValues, fullDescriptor) {
             rows.push({ label: '  bMaxPower:', value: String(configValues.bMaxPower) + ' units (' + (configValues.bMaxPower * 2) + 'mA)' });
 
             // All HS class instances in user-defined order
-            for (const className of getCurrentClassOrder()) {
-                pushReadableClassRows(rows, className, getReadableClassIfOffset(className), true);
-            }
+            pushReadableInstanceRows(rows, true);
         }
     }
 
@@ -7171,18 +7308,7 @@ function generateDescriptor() {
             return Math.max(1, parseInt(countInput && countInput.value, 10) || 1);
         };
 
-        const getClassInterfaceOffset = (targetClassName) => {
-            let offset = 0;
-            for (const className of getCurrentClassOrder()) {
-                if (className === targetClassName) {
-                    break;
-                }
-
-                offset += getEnabledClassInstances(className) * (classInterfacePerInstance[className] || 1);
-            }
-
-            return offset;
-        };
+        const getClassInterfaceOffset = (targetClassName, instance = 1) => getInstanceInterfaceStart(targetClassName, instance);
 
         const classSegments = new Map();
         const beginClassSegment = () => ({ descriptorStart: descriptor.length, commentsStart: commentsList.length });
@@ -7194,7 +7320,7 @@ function generateDescriptor() {
             commentsList.length = segmentStart.commentsStart;
 
             if (descriptorPart.length > 0) {
-                classSegments.set(className, { descriptorPart, commentsPart });
+                storeClassInstanceSegments(classSegments, className, descriptorPart, commentsPart);
             }
         };
 
@@ -7208,7 +7334,7 @@ function generateDescriptor() {
             for (let i = 1; i <= classNumber; i++) {
                 // Read form values from the three descriptor types
                 const interfaceValues = readInterfaceDescriptorValues(i);
-                interfaceValues.bInterfaceNumber = getClassInterfaceOffset('hid') + (i - 1);
+                interfaceValues.bInterfaceNumber = getClassInterfaceOffset('hid', i);
                 const hidDetailsValues = readHIDDetailsValues(i);
                 const endpointValues = readEndpointInDescriptorValues(i);
                 const endpointOutValues = optionalEndpointState[i] && isProtocolNone(i) ? readEndpointOutDescriptorValues(i) : null;
@@ -7321,7 +7447,7 @@ function generateDescriptor() {
                 const interfaceDescriptor = [
                     0x09,  // bLength
                     0x04,  // bDescriptorType (Interface)
-                    getClassInterfaceOffset('msc') + (i - 1), // bInterfaceNumber
+                    getClassInterfaceOffset('msc', i), // bInterfaceNumber
                     0x00,  // bAlternateSetting
                     0x02,  // bNumEndpoints (Bulk IN + Bulk OUT)
                     0x08,  // bInterfaceClass (Mass Storage)
@@ -7412,9 +7538,8 @@ function generateDescriptor() {
         if (dfuCheckbox && dfuCheckbox.checked) {
             const dfuNumberInput = document.getElementById('class-num-dfu');
             const classNumber = parseInt(dfuNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('dfu');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('dfu', i) - (i - 1);
                 const dfuConfigValues = readDFUConfigValues(i);
 
                 const interfaceDescriptor = [
@@ -7461,9 +7586,8 @@ function generateDescriptor() {
         if (printerCheckbox && printerCheckbox.checked) {
             const printerNumberInput = document.getElementById('class-num-printer');
             const classNumber = parseInt(printerNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('printer');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('printer', i) - (i - 1);
                 const printerConfigValues = readPrinterConfigValues(i);
                 const bulkInValuesFS = readPrinterBulkInValuesFS(i);
                 const bulkOutValuesFS = readPrinterBulkOutValuesFS(i);
@@ -7508,9 +7632,8 @@ function generateDescriptor() {
         if (videoCheckbox && videoCheckbox.checked) {
             const videoNumberInput = document.getElementById('class-num-video');
             const classNumber = parseInt(videoNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('video');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('video', i) - (i - 1);
                 const videoConfigValues = readVideoConfigValues(i);
                 const bulkInValuesFS = readVideoBulkInValuesFS(i);
                 const bulkOutValuesFS = readVideoBulkOutValuesFS(i);
@@ -7542,9 +7665,8 @@ function generateDescriptor() {
         if (mtpCheckbox && mtpCheckbox.checked) {
             const mtpNumberInput = document.getElementById('class-num-mtp');
             const classNumber = parseInt(mtpNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('mtp');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('mtp', i) - (i - 1);
                 const mtpConfigValues = readMTPConfigValues(i);
                 const bulkInValuesFS = readMTPBulkInValuesFS(i);
                 const bulkOutValuesFS = readMTPBulkOutValuesFS(i);
@@ -7576,9 +7698,8 @@ function generateDescriptor() {
         if (ptpCheckbox && ptpCheckbox.checked) {
             const ptpNumberInput = document.getElementById('class-num-ptp');
             const classNumber = parseInt(ptpNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('ptp');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('ptp', i) - (i - 1);
                 const ptpConfigValues = readPTPConfigValues(i);
                 const bulkInValuesFS = readPTPBulkInValuesFS(i);
                 const bulkOutValuesFS = readPTPBulkOutValuesFS(i);
@@ -7610,9 +7731,8 @@ function generateDescriptor() {
         if (cdcCheckbox && cdcCheckbox.checked) {
             const cdcNumberInput = document.getElementById('class-num-cdc');
             const classNumber = parseInt(cdcNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('cdc');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('cdc', i) - (i - 1) * 2;
                 // Read CDC ACM configuration values
                 const cdcConfigValues = readCDCConfigValues(i);
                 const notifyValuesFS = readCDCNotifyValuesFS(i);
@@ -7861,9 +7981,8 @@ function generateDescriptor() {
         if (rndisCheckbox && rndisCheckbox.checked) {
             const rndisNumberInput = document.getElementById('class-num-rndis');
             const classNumber = parseInt(rndisNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('rndis');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('rndis', i) - (i - 1) * 2;
                 const rndisConfig = readRNDISConfigValues(i);
                 const notifyValuesFS = readRNDISNotifyValuesFS(i);
                 const bulkInValuesFS = readRNDISBulkInValuesFS(i);
@@ -7907,9 +8026,8 @@ function generateDescriptor() {
         if (ecmCheckbox && ecmCheckbox.checked) {
             const ecmNumberInput = document.getElementById('class-num-ecm');
             const classNumber = parseInt(ecmNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('ecm');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('ecm', i) - (i - 1) * 2;
                 const ecmConfig = readECMConfigValues(i);
                 const notifyValuesFS = readECMNotifyValuesFS(i);
                 const bulkInValuesFS = readECMBulkInValuesFS(i);
@@ -7959,9 +8077,8 @@ function generateDescriptor() {
         if (audioCheckbox && audioCheckbox.checked) {
             const audioNumberInput = document.getElementById('class-num-audio');
             const classNumber = parseInt(audioNumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('audio');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('audio', i) - (i - 1) * 2;
                 const audioConfig = readAudioConfigValues(i);
                 const audioEpFS = readAudioEndpointValuesFS(i);
 
@@ -8239,9 +8356,8 @@ function generateDescriptor() {
         if (audio2Checkbox && audio2Checkbox.checked) {
             const audio2NumberInput = document.getElementById('class-num-audio2');
             const classNumber = parseInt(audio2NumberInput.value) || 1;
-            const interfaceOffset = getClassInterfaceOffset('audio2');
-
             for (let i = 1; i <= classNumber; i++) {
+                const interfaceOffset = getClassInterfaceOffset('audio2', i) - (i - 1) * 2;
                 const audio2Config = readAudio2ConfigValues(i);
                 const audio2EpFS = readAudio2EndpointValuesFS(i);
 
@@ -8439,12 +8555,7 @@ function generateDescriptor() {
         }
         finalizeClassSegment('audio2', audio2SegmentStart);
 
-        getCurrentClassOrder().forEach((className) => {
-            const segment = classSegments.get(className);
-            if (!segment) {
-                return;
-            }
-
+        getOrderedClassSegments(classSegments).forEach((segment) => {
             descriptor = descriptor.concat(segment.descriptorPart);
             commentsList = commentsList.concat(segment.commentsPart);
         });
@@ -10690,7 +10801,14 @@ function loadJSON() {
                     const valid = json.classOrder.filter((className) => CLASS_CARD_CONFIG[className]);
                     const missing = CLASS_ORDER_DEFAULT.filter((className) => !valid.includes(className));
                     classCardOrder = valid.concat(missing);
-                    applyClassCardOrder();
+                    classInstanceOrder = [];
+                }
+
+                if (Array.isArray(json.instanceOrder)) {
+                    classInstanceOrder = json.instanceOrder
+                        .map((token) => String(token).split(':'))
+                        .filter(([className, instance]) => CLASS_CARD_CONFIG[className] && parseInt(instance, 10) >= 1)
+                        .map(([className, instance]) => ({ className, instance: parseInt(instance, 10) }));
                 }
 
                 // Start from a clean class selection state.
@@ -13782,7 +13900,7 @@ window.addEventListener('load', () => {
     registerHandlebarsHelpers();
     compileTemplates();
     renderForm();
-    injectClassCardReorderControls();
+    initClassInstanceReordering();
 
     // Chip toggle: keep chip-checked class in sync when checkbox state changes
     document.body.addEventListener('change', (e) => {
