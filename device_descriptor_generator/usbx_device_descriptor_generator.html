@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USBX Device Descriptor Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>USBX Device Descriptor Generator</h1>
+        </header>
+
+        <nav class="navigation">
+            <a href="usbx_hid_report_descriptor_generator.html" class="nav-link">HID Report Descriptor Generator →</a>
+        </nav>
+
+        <div class="content">
+            <div class="form-section">
+                <h2>Device Descriptor</h2>
+
+                <div class="button-group">
+                    <button type="button" class="btn-generate btn-with-icon" onclick="newDescriptor()" aria-label="Create new descriptor">
+                        <span class="btn-icon" aria-hidden="true">+</span>
+                        <span class="btn-label">New</span>
+                    </button>
+                    <button type="button" class="btn-generate btn-with-icon" onclick="loadJSON()" aria-label="Load JSON file">
+                        <span class="btn-icon" aria-hidden="true">&#x1F4C2;</span>
+                        <span class="btn-label">Load JSON</span>
+                    </button>
+                    <button type="button" class="btn-reset btn-with-icon" onclick="loadTemplate()" aria-label="Load template values">
+                        <span class="btn-icon" aria-hidden="true">&#x2699;</span>
+                        <span class="btn-label">Template</span>
+                    </button>
+                </div>
+
+                <div class="info-box">
+                    Fill in the fields below to configure your USB device descriptor. Hex values can be entered with or without a <code>0x</code> prefix.
+                </div>
+
+                <form id="descriptorForm">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseSpeed', this)" aria-expanded="false">
+                                    USB Speed
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseSpeed" class="collapse">
+                            <div class="card-body">
+                                <table class="usb-class-table">
+                                    <thead>
+                                        <tr>
+                                            <th>USB Speed</th>
+                                            <th>Enable/Disable</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Full Speed <span class="label-help">(Always Enabled)</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="speed-full" checked disabled>
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>High Speed</td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="speed-high" checked onchange="toggleUSBSpeed('high')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseClasses', this)" aria-expanded="false">
+                                    USB Classes
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseClasses" class="collapse">
+                            <div class="card-body">
+                                <table class="usb-class-table">
+                                    <thead>
+                                        <tr>
+                                            <th>USB Class</th>
+                                            <th>Class Code</th>
+                                            <th>Enable/Disable</th>
+                                            <th>Class Number</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>HID - Human Interface Device</td>
+                                            <td><span class="usb-class-code">0x03</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-hid" onchange="toggleUSBClass('hid')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-hid" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>CDC ACM - Abstract Control Model</td>
+                                            <td><span class="usb-class-code">0x02</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-cdc" onchange="toggleUSBClass('cdc')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-cdc" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>CDC RNDIS</td>
+                                            <td><span class="usb-class-code">0x02</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-rndis" onchange="toggleUSBClass('rndis')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-rndis" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>CDC ECM</td>
+                                            <td><span class="usb-class-code">0x02</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-ecm" onchange="toggleUSBClass('ecm')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-ecm" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>Mass Storage</td>
+                                            <td><span class="usb-class-code">0x08</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-msc" onchange="toggleUSBClass('msc')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-msc" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>DFU - Device Firmware Upgrade</td>
+                                            <td><span class="usb-class-code">0xFE</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-dfu" onchange="toggleUSBClass('dfu')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-dfu" min="1" max="1" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>Printer</td>
+                                            <td><span class="usb-class-code">0x07</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-printer" onchange="toggleUSBClass('printer')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-printer" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>Video</td>
+                                            <td><span class="usb-class-code">0x0E</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-video" onchange="toggleUSBClass('video')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-video" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>MTP - Media Transfer Protocol</td>
+                                            <td><span class="usb-class-code">0x06</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-mtp" onchange="toggleUSBClass('mtp')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-mtp" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>PTP - Picture Transfer Protocol</td>
+                                            <td><span class="usb-class-code">0x06</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-ptp" onchange="toggleUSBClass('ptp')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-ptp" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>Audio 1.0</td>
+                                            <td><span class="usb-class-code">0x01</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-audio" onchange="toggleUSBClass('audio')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-audio" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                        <tr hidden>
+                                            <td>Audio 2.0</td>
+                                            <td><span class="usb-class-code">0x01</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="class-audio2" onchange="toggleUSBClass('audio2')">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <input type="number" id="class-num-audio2" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 style="margin-top: 30px; margin-bottom: 20px;">Device Descriptor Configuration</h2>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseConfig', this)" aria-expanded="false">
+                                    Device descriptor
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseConfig" class="collapse">
+                            <div class="card-body">
+                                <div id="dynamic-form-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseConfiguration', this)" aria-expanded="false">
+                                    Configuration descriptor
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseConfiguration" class="collapse">
+                            <div class="card-body">
+                                <div id="configuration-form-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseLanguage', this)" aria-expanded="false">
+                                    Language ID
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseLanguage" class="collapse">
+                            <div class="card-body">
+                                <table class="usb-class-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Language</th>
+                                            <th>Language ID</th>
+                                            <th>Enable/Disable</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>English (US)</td>
+                                            <td><span class="usb-class-code">0x0409</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-en-us" checked>
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>English (UK)</td>
+                                            <td><span class="usb-class-code">0x0809</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-en-uk">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>French</td>
+                                            <td><span class="usb-class-code">0x040C</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-fr">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>German</td>
+                                            <td><span class="usb-class-code">0x0407</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-de">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Spanish</td>
+                                            <td><span class="usb-class-code">0x0C0A</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-es">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Italian</td>
+                                            <td><span class="usb-class-code">0x0410</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-it">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Japanese</td>
+                                            <td><span class="usb-class-code">0x0411</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-ja">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Chinese (Simplified)</td>
+                                            <td><span class="usb-class-code">0x0804</span></td>
+                                            <td>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" id="lang-zh-cn">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseStringDescriptors', this)" aria-expanded="false">
+                                    String Descriptor
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseStringDescriptors" class="collapse">
+                            <div class="card-body">
+                                <div id="custom-string-descriptors-list"></div>
+                                <button class="btn btn-sm" type="button" onclick="addCustomStringDescriptor()" style="margin-top: -4px; margin-bottom: 12px; padding: 4px 10px; font-size: 0.85em;">
+                                    + add string descriptor
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 id="usbClassesDescriptorTitle" style="margin-top: 30px; color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px;">USB Classes Descriptor Configuration</h2>
+
+                    <div class="info-box">
+                        Select USB classes and numbers of instance in USB Classes Table.
+                    </div>
+
+                    <div id="class-config-cards">
+                    <div class="card" id="hidDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseHID', this)" aria-expanded="false">
+                                    HID Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseHID" class="collapse">
+                            <div class="card-body">
+                                <div id="hid-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="massStorageDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseMSC', this)" aria-expanded="false">
+                                    Mass Storage Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseMSC" class="collapse">
+                            <div class="card-body">
+                                <div id="mass-storage-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="dfuDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseDFU', this)" aria-expanded="false">
+                                    DFU Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseDFU" class="collapse">
+                            <div class="card-body">
+                                <div id="dfu-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="printerDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapsePrinter', this)" aria-expanded="false">
+                                    Printer Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapsePrinter" class="collapse">
+                            <div class="card-body">
+                                <div id="printer-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="videoDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseVideo', this)" aria-expanded="false">
+                                    Video Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseVideo" class="collapse">
+                            <div class="card-body">
+                                <div id="video-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="mtpDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseMTP', this)" aria-expanded="false">
+                                    MTP Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseMTP" class="collapse">
+                            <div class="card-body">
+                                <div id="mtp-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="ptpDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapsePTP', this)" aria-expanded="false">
+                                    PTP Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapsePTP" class="collapse">
+                            <div class="card-body">
+                                <div id="ptp-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="cdcDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseCDC', this)" aria-expanded="false">
+                                    CDC ACM Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseCDC" class="collapse">
+                            <div class="card-body">
+                                <div id="cdc-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="cdcRndisDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseRNDIS', this)" aria-expanded="false">
+                                    CDC RNDIS Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseRNDIS" class="collapse">
+                            <div class="card-body">
+                                <div id="rndis-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="cdcEcmDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseECM', this)" aria-expanded="false">
+                                    CDC ECM Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseECM" class="collapse">
+                            <div class="card-body">
+                                <div id="ecm-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="audioDescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseAudio', this)" aria-expanded="false">
+                                    Audio 1.0 Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseAudio" class="collapse">
+                            <div class="card-body">
+                                <div id="audio-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="audio2DescriptorCard" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseAudio2', this)" aria-expanded="false">
+                                    Audio 2.0 Configuration
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseAudio2" class="collapse">
+                            <div class="card-body">
+                                <div id="audio2-descriptor-fields"></div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="output-section">
+                <h2>Generated Output</h2>
+
+                <div class="button-group">
+                    <button type="button" class="btn-generate btn-with-icon" onclick="generateDescriptor()" aria-label="Generate descriptor output">
+                        <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
+                        <span class="btn-label">Generate Descriptor</span>
+                    </button>
+                    <button type="button" class="btn-reset btn-with-icon" onclick="resetForm()" aria-label="Reset all fields">
+                        <span class="btn-icon" aria-hidden="true">&#x21BB;</span>
+                        <span class="btn-label">Reset</span>
+                    </button>
+                </div>
+
+                <div class="output-tabs">
+                    <button class="tab-button btn-with-icon active" onclick="switchTab('c-array', this)">
+                        <span class="btn-icon" aria-hidden="true">C</span>
+                        <span class="btn-label">Array</span>
+                    </button>
+                    <button class="tab-button btn-with-icon" type="button" onclick="saveJSON()" aria-label="Save configured parameters as JSON">
+                        <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
+                        <span class="btn-label">Save JSON</span>
+                    </button>
+                    <button class="tab-button btn-with-icon" onclick="switchTab('hex', this)">
+                        <span class="btn-icon" aria-hidden="true">0x</span>
+                        <span class="btn-label">Hex Dump</span>
+                    </button>
+                    <button class="tab-button btn-with-icon" onclick="switchTab('readable', this)">
+                        <span class="btn-icon" aria-hidden="true">&#x1F50D;</span>
+                        <span class="btn-label">Readable</span>
+                    </button>
+                </div>
+
+                <div id="c-array" class="tab-content active">
+                    <div class="output-box">
+                        <button class="copy-button btn-with-icon" onclick="copyToClipboard('c-array-output', this)">
+                            <span class="btn-icon" aria-hidden="true">&#x2398;</span>
+                            <span class="btn-label">Copy</span>
+                        </button>
+                        <pre id="c-array-output">/* Click "Generate Descriptor" to see output */</pre>
+                    </div>
+                </div>
+
+                <div id="json-array" class="tab-content">
+                    <div class="output-box">
+                        <button class="copy-button btn-with-icon" onclick="copyToClipboard('json-array-output', this)">
+                            <span class="btn-icon" aria-hidden="true">&#x2398;</span>
+                            <span class="btn-label">Copy</span>
+                        </button>
+                        <pre id="json-array-output">/* Click "Generate Descriptor" to see output */</pre>
+                    </div>
+                </div>
+
+                <div id="hex" class="tab-content">
+                    <div class="output-box">
+                        <button class="copy-button btn-with-icon" onclick="copyToClipboard('hex-output', this)">
+                            <span class="btn-icon" aria-hidden="true">&#x2398;</span>
+                            <span class="btn-label">Copy</span>
+                        </button>
+                        <pre id="hex-output">/* Click "Generate Descriptor" to see output */</pre>
+                    </div>
+                </div>
+
+                <div id="readable" class="tab-content">
+                    <div class="output-box">
+                        <button class="copy-button btn-with-icon" onclick="copyToClipboard('readable-output', this)">
+                            <span class="btn-icon" aria-hidden="true">&#x2398;</span>
+                            <span class="btn-label">Copy</span>
+                        </button>
+                        <pre id="readable-output">/* Click "Generate Descriptor" to see output */</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Handlebars Templates -->
+    <script id="field-template" type="text/x-handlebars-template">
+        {{#each fields}}
+        <div class="form-group">
+            <label for="{{id}}">
+                {{label}}
+                <span class="info-icon" title="{{help}}" data-tooltip="{{help}}">
+                    ℹ
+                </span>
+            </label>
+
+            {{#if isMultiSelect}}
+            <div class="chip-group" role="group">
+                {{#each options}}
+                <label class="chip{{#ifIn value ../default}} chip-checked{{/ifIn}}">
+                    <input type="checkbox"
+                        name="{{../id}}"
+                        value="{{value}}"
+                        {{#ifIn value ../default}}checked{{/ifIn}}>
+                    {{text}}
+                </label>
+                {{/each}}
+            </div>
+            {{else if isSelect}}
+            <select id="{{id}}" name="{{id}}" data-format="{{format}}" data-bytes="{{bytes}}">
+                {{#each options}}
+                <option value="{{value}}" {{#ifEq value ../default}}selected{{/ifEq}}>{{text}}</option>
+                {{/each}}
+            </select>
+            {{else}}
+            <input
+                type="{{inputType}}"
+                id="{{id}}"
+                name="{{id}}"
+                value="{{default}}"
+                placeholder="{{placeholder}}"
+                data-format="{{format}}"
+                data-bytes="{{bytes}}"
+                {{#if hasMin}}min="{{min}}"{{/if}}
+                {{#if hasMax}}max="{{max}}"{{/if}}>
+            {{/if}}
+        </div>
+        {{/each}}
+    </script>
+
+    <script id="c-array-template" type="text/x-handlebars-template">
+<span class="descriptor-comment">/* USB Full Speed Device Descriptor Length */</span>
+<span class="descriptor-keyword">#define</span> <span class="descriptor-value">DEVICE_FRAMEWORK_LENGTH_FULL_SPEED</span>  <span class="descriptor-value">{{fsSize}}</span>
+
+<span class="descriptor-comment">/* USB Full Speed Device Descriptor */</span>
+<span class="descriptor-keyword">unsigned char</span> device_framework_full_speed[] = {
+{{#each rows}}
+{{#if sectionHeader}}
+
+    <span class="descriptor-comment">/* {{sectionHeader}} */</span>
+{{/if}}
+    <span class="descriptor-value">{{{formatCodeField hex comma}}}</span>{{#if comment}}<span class="descriptor-comment">/* {{comment}} */</span>{{/if}}
+{{/each}}
+};
+{{#if hsRows}}
+
+<span class="descriptor-comment">/* USB High Speed Device Descriptor Length */</span>
+<span class="descriptor-keyword">#define</span> <span class="descriptor-value">DEVICE_FRAMEWORK_LENGTH_HIGH_SPEED</span>  <span class="descriptor-value">{{hsSize}}</span>
+
+<span class="descriptor-comment">/* USB High Speed Device Descriptor */</span>
+<span class="descriptor-keyword">unsigned char</span> device_framework_high_speed[] = {
+{{#each hsRows}}
+{{#if sectionHeader}}
+
+    <span class="descriptor-comment">/* {{sectionHeader}} */</span>
+{{/if}}
+    <span class="descriptor-value">{{{formatCodeField hex comma}}}</span>{{#if comment}}<span class="descriptor-comment">/* {{comment}} */</span>{{/if}}
+{{/each}}
+};
+{{/if}}
+{{#if stringRows}}
+
+<span class="descriptor-comment">/* USB String Device Framework Length */</span>
+<span class="descriptor-keyword">#define</span> <span class="descriptor-value">DEVICE_FRAMEWORK_LENGTH_STRING</span>  <span class="descriptor-value">{{stringSize}}</span>
+
+<span class="descriptor-comment">/* USB String Device Framework */</span>
+<span class="descriptor-keyword">unsigned char</span> device_framework_string[] = {
+{{#each stringRows}}
+{{#if emptyLine}}
+
+{{else}}
+{{#if sectionHeader}}
+    <span class="descriptor-comment">/* {{sectionHeader}} */</span>
+{{/if}}
+    <span class="descriptor-value">{{{formatCodeField hex comma}}}</span>{{#if comment}}<span class="descriptor-comment">/* {{comment}} */</span>{{/if}}
+{{/if}}
+{{/each}}
+};
+{{/if}}
+
+<span class="descriptor-comment">/* USB Language ID Framework Length */</span>
+<span class="descriptor-keyword">#define</span> <span class="descriptor-value">DEVICE_FRAMEWORK_LENGTH_LANGUAGE_ID</span>  <span class="descriptor-value">{{langIdSize}}</span>
+
+<span class="descriptor-comment">/* USB Language ID Framework */</span>
+<span class="descriptor-keyword">unsigned char</span> device_framework_language_id[] = {
+{{#each langIdRows}}
+    <span class="descriptor-value">{{{formatCodeField hex comma}}}</span>{{#if comment}}<span class="descriptor-comment">/* {{comment}} */</span>{{/if}}
+{{/each}}
+};
+    </script>
+
+    <script id="hex-template" type="text/x-handlebars-template">
+<span class="descriptor-comment">/* Hexadecimal Dump */</span>
+
+<span class="descriptor-comment">/* device_framework_full_speed  ({{size}} bytes) */</span>
+{{#each rows}}
+<span class="descriptor-comment">{{offset}}:</span>  {{#each bytes}}<span class="descriptor-value">{{this}}</span> {{/each}}
+{{/each}}
+{{#if hsRows}}
+
+<span class="descriptor-comment">/* device_framework_high_speed  ({{hsSize}} bytes) */</span>
+{{#each hsRows}}
+<span class="descriptor-comment">{{offset}}:</span>  {{#each bytes}}<span class="descriptor-value">{{this}}</span> {{/each}}
+{{/each}}
+{{/if}}
+{{#if stringHexRows}}
+
+<span class="descriptor-comment">/* device_framework_string  ({{stringSize}} bytes) */</span>
+{{#each stringHexRows}}
+<span class="descriptor-comment">{{offset}}:</span>  {{#each bytes}}<span class="descriptor-value">{{this}}</span> {{/each}}
+{{/each}}
+{{/if}}
+{{#if langIdHexRows}}
+
+<span class="descriptor-comment">/* device_framework_language_id  ({{langIdSize}} bytes) */</span>
+{{#each langIdHexRows}}
+<span class="descriptor-comment">{{offset}}:</span>  {{#each bytes}}<span class="descriptor-value">{{this}}</span> {{/each}}
+{{/each}}
+{{/if}}
+    </script>
+
+    <script id="readable-template" type="text/x-handlebars-template">
+{{#each rows}}
+{{#if isHeader}}<span class="descriptor-comment">{{label}}</span>{{else}}{{#if value}}<span class="descriptor-keyword">{{label}}</span> <span class="descriptor-value">{{value}}</span>{{else}}<span class="descriptor-value">{{label}}</span>{{/if}}{{/if}}
+{{/each}}
+    </script>
+
+    <!-- External JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@4.7.8/dist/handlebars.min.js"></script>
+
+    <!-- Application JavaScript -->
+    <script src="script.js"></script>
+
+    <footer class="site-footer">
+        &copy; 2026 Mohamed AYED &mdash; MIT License
+    </footer>
+</body>
+</html>
