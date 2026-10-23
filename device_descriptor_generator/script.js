@@ -294,12 +294,13 @@ const PAGE_SCHEMA = {
         {
             id: 'bNumConfigurations',
             label: 'Number of Configurations (bNumConfigurations)',
-            help: 'Number of possible configurations.',
+            help: 'USBX supports one configuration.',
             type: 'number',
             format: 'number',
             default: 1,
             min: 1,
-            max: 255
+            max: 1,
+            fixedValue: 1
         }
     ],
     descriptorComments: [
@@ -1691,6 +1692,7 @@ function renderForm() {
         ...field,
         isSelect: field.type === 'select',
         inputType: field.type === 'number' ? 'number' : 'text',
+        isFixed: field.fixedValue !== undefined,
         hasMin: typeof field.min === 'number',
         hasMax: typeof field.max === 'number'
     }));
@@ -2301,6 +2303,11 @@ function readFormValues() {
     const values = {};
 
     PAGE_SCHEMA.fields.forEach((field) => {
+        if (field.fixedValue !== undefined) {
+            values[field.id] = field.fixedValue;
+            return;
+        }
+
         const element = document.getElementById(field.id);
         if (!element) {
             // Field might be hidden, use default value
@@ -10482,8 +10489,14 @@ function setElementValueFromJson(elementId, value) {
         return;
     }
 
+    const fixedField = PAGE_SCHEMA.fields.find((field) => field.id === elementId && field.fixedValue !== undefined);
     const element = document.getElementById(elementId);
     if (!element) {
+        return;
+    }
+
+    if (fixedField) {
+        element.value = String(fixedField.fixedValue);
         return;
     }
 

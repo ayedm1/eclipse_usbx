@@ -167,7 +167,7 @@
                                                 <input type="number" id="class-num-msc" min="1" max="3" value="1" disabled style="width: 60px; padding: 6px; text-align: center;">
                                             </td>
                                         </tr>
-                                        <tr hidden>
+                                        <tr>
                                             <td>DFU - Device Firmware Upgrade</td>
                                             <td><span class="usb-class-code">0xFE</span></td>
                                             <td>
@@ -724,7 +724,8 @@
                 data-format="{{format}}"
                 data-bytes="{{bytes}}"
                 {{#if hasMin}}min="{{min}}"{{/if}}
-                {{#if hasMax}}max="{{max}}"{{/if}}>
+                {{#if hasMax}}max="{{max}}"{{/if}}
+                {{#if isFixed}}disabled{{/if}}>
             {{/if}}
         </div>
         {{/each}}
