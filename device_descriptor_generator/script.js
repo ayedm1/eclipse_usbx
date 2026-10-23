@@ -465,7 +465,7 @@ const INTERFACE_SCHEMA = {
             help: 'String descriptor text for this interface (used when iInterface != 0)',
             type: 'text',
             format: 'string',
-            default: 'custom',
+            default: 'HID Custom Interface',
             placeholder: 'e.g., HID Interface',
             conditionalField: 'iInterface',
             conditionalOperator: 'greaterThan',
@@ -8781,18 +8781,18 @@ function renderInterfaceDescriptorFields(instanceNum) {
     const protocolElement = document.getElementById(`interface-${instanceNum}-bInterfaceProtocol`);
     const getDefaultInterfaceStringByProtocol = () => {
         if (!protocolElement) {
-            return 'custom';
+            return 'HID Custom Interface';
         }
 
         const protocolValue = parseInt(protocolElement.value, 16);
         if (protocolValue === 0x02) {
-            return 'Mouse';
+            return 'HID Mouse Interface';
         }
         if (protocolValue === 0x01) {
-            return 'Keybord';
+            return 'HID Keyboard Interface';
         }
 
-        return 'custom';
+        return 'HID Custom Interface';
     };
 
     const syncInterfaceStringFromProtocol = () => {
