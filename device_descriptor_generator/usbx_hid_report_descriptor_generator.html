@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USBX HID Report Descriptor Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>USBX HID Report Descriptor Generator</h1>
+        </header>
+
+        <nav class="navigation">
+            <a href="usbx_device_descriptor_generator.html" class="nav-link">← Back to USB Device Descriptor</a>
+        </nav>
+
+        <div class="content">
+            <div class="form-section">
+                <h2>HID Report Descriptor Configuration</h2>
+
+                <div class="button-group">
+                    <button type="button" class="btn-generate btn-with-icon" onclick="newDescriptor()" aria-label="Create new HID report descriptor">
+                        <span class="btn-icon" aria-hidden="true">+</span>
+                        <span class="btn-label">New</span>
+                    </button>
+                    <button type="button" class="btn-generate btn-with-icon" onclick="loadJSON()" aria-label="Load HID report JSON file">
+                        <span class="btn-icon" aria-hidden="true">&#x1F4C2;</span>
+                        <span class="btn-label">Load JSON</span>
+                    </button>
+                    <button type="button" class="btn-reset btn-with-icon" onclick="loadTemplate()" aria-label="Load HID report template">
+                        <span class="btn-icon" aria-hidden="true">&#x2699;</span>
+                        <span class="btn-label">Load Template</span>
+                    </button>
+                </div>
+
+                <div class="info-box">
+                    Configure your HID Report Descriptor. Select a template or build a custom descriptor from scratch.
+                </div>
+
+                <form id="hidReportForm">
+                    <!-- HID Device Type Selection -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse" type="button" onclick="toggleCollapse('collapseDeviceType', this)" aria-expanded="true">
+                                    Device Type Selection
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseDeviceType" class="collapse show">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="deviceType">Select HID Device Type:</label>
+                                    <select id="deviceType" onchange="loadDeviceTemplate()">
+                                        <option value="custom">Custom</option>
+                                        <option value="mouse" selected>Mouse (Boot Protocol)</option>
+                                        <option value="mouse-absolute">Mouse (Absolute Positioning)</option>
+                                        <option value="keyboard">Keyboard (Boot Protocol)</option>
+                                        <option value="gamepad">Game Controller / Gamepad</option>
+                                        <option value="joystick">Joystick</option>
+                                        <option value="consumer">Consumer Control</option>
+                                        <option value="vendor">Vendor-Specific</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Descriptor Items -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse" type="button" onclick="toggleCollapse('collapseReportItems', this)" aria-expanded="true">
+                                    Report Descriptor Items
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseReportItems" class="collapse show">
+                            <div class="card-body">
+                                <div id="reportItemsContainer">
+                                    <!-- Report items will be dynamically generated here -->
+                                </div>
+                                <div class="button-group">
+                                    <button type="button" class="btn-generate btn-with-icon" onclick="addReportItem()" aria-label="Add report descriptor item">
+                                        <span class="btn-icon" aria-hidden="true">+</span>
+                                        <span class="btn-label">Add Item</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Settings -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseAdvanced', this)" aria-expanded="false">
+                                    Advanced Settings
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseAdvanced" class="collapse">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="useReportId" onchange="updateAdvancedSettings()">
+                                        Use Report IDs (for multiple reports)
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reportIdCount">Number of Reports:</label>
+                                    <input type="number" id="reportIdCount" min="1" max="255" value="1" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Output Section -->
+            <div class="output-section">
+                <h2>Generated HID Report Descriptor</h2>
+
+                <div class="button-group">
+                    <button type="button" class="btn-generate btn-with-icon" onclick="generateOutput()" aria-label="Generate HID report outputs">
+                        <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
+                        <span class="btn-label">Generate</span>
+                    </button>
+                    <button type="button" class="btn-generate btn-with-icon" onclick="copyToClipboard('outputC')" aria-label="Copy C array output">
+                        <span class="btn-icon" aria-hidden="true">&#x2398;</span>
+                        <span class="btn-label">Copy C Array</span>
+                    </button>
+                    <button type="button" class="btn-generate btn-with-icon" onclick="saveJSON()" aria-label="Save HID report configuration as JSON">
+                        <span class="btn-icon" aria-hidden="true">&#x1F4BE;</span>
+                        <span class="btn-label">Save JSON</span>
+                    </button>
+                </div>
+
+                <div class="output-card-list">
+                    <!-- Report Descriptor Statistics -->
+                    <div class="card output-card">
+                        <div class="card-header">
+                            <h3 class="mb-0">
+                                <button class="btn-collapse" type="button" onclick="toggleCollapse('collapseReportStats', this)" aria-expanded="true">
+                                    Report Descriptor Statistics
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="collapseReportStats" class="collapse show">
+                            <div class="card-body">
+                                <table class="stats-table">
+                                    <tr>
+                                        <td><strong>Total Size:</strong></td>
+                                        <td id="totalSize">0 bytes</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Number of Items:</strong></td>
+                                        <td id="itemCount">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Input Report Size:</strong></td>
+                                        <td id="inputReportSize">0 bytes</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Output Report Size:</strong></td>
+                                        <td id="outputReportSize">0 bytes</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Feature Report Size:</strong></td>
+                                        <td id="featureReportSize">0 bytes</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- C Array Output -->
+                    <div class="card output-card">
+                        <div class="card-header">
+                            <h3 class="mb-0">
+                                <button class="btn-collapse" type="button" onclick="toggleCollapse('collapseCArray', this)" aria-expanded="true">
+                                    C Array Format
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="collapseCArray" class="collapse show">
+                            <div class="card-body">
+                                <div class="output-box">
+                                    <button class="copy-button btn-with-icon" onclick="copyToClipboard('outputC', this)">
+                                        <span class="btn-icon" aria-hidden="true">&#x2398;</span>
+                                        <span class="btn-label">Copy</span>
+                                    </button>
+                                    <pre id="outputC" class="code-output">// Click Generate to create HID Report Descriptor</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hex Output -->
+                    <div class="card output-card">
+                        <div class="card-header">
+                            <h3 class="mb-0">
+                                <button class="btn-collapse" type="button" onclick="toggleCollapse('collapseHexFormat', this)" aria-expanded="true">
+                                    Hexadecimal Format
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="collapseHexFormat" class="collapse show">
+                            <div class="card-body">
+                                <pre id="outputHex" class="code-output">// Click Generate to create HID Report Descriptor</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Human-Readable Format -->
+                    <div class="card output-card">
+                        <div class="card-header">
+                            <h3 class="mb-0">
+                                <button class="btn-collapse" type="button" onclick="toggleCollapse('collapseReadableFormat', this)" aria-expanded="true">
+                                    Human-Readable Format
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="collapseReadableFormat" class="collapse show">
+                            <div class="card-body">
+                                <pre id="outputReadable" class="code-output">// Click Generate to create HID Report Descriptor</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="hid_report_script.js"></script>
+
+    <footer class="site-footer">
+        &copy; 2026 Mohamed AYED &mdash; MIT License
+    </footer>
+</body>
+</html>

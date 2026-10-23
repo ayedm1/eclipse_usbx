@@ -1,0 +1,82 @@
+{
+  "device": {
+    "idVendor": "0x1A0A",
+    "idProduct": "0x5740",
+    "manufacturer": "Eclipse Threadx",
+    "product": "USBX",
+    "serialNumber": "USBDEVICE00001",
+    "bcdDevice": "0x0100",
+    "bcdUSB": "0x0200",
+    "bDeviceClass": "0x00",
+    "bDeviceSubClass": "0x00",
+    "bDeviceProtocol": "0x00",
+    "bMaxPacketSize0": 8,
+    "iManufacturer": 1,
+    "iProduct": 2,
+    "iSerialNumber": 3,
+    "bNumConfigurations": 1
+  },
+  "configuration": {
+    "bNumInterfaces": 1,
+    "bConfigurationValue": "0x01",
+    "iConfiguration": 4,
+    "configurationString": "",
+    "bmAttributes": "0xC0",
+    "bMaxPower": 50,
+    "highSpeed": {
+      "iConfigurationHS": 5,
+      "configurationStringHS": "HIGH SPEED"
+    }
+  },
+  "languageIds": [
+    {
+      "code": "0x0409",
+      "name": "English (US)"
+    }
+  ],
+  "speeds": {
+    "fullSpeed": true,
+    "highSpeed": true
+  },
+  "classOrder": [
+    "hid"
+  ],
+  "customStrings": [],
+  "classes": {
+    "hid": {
+      "instances": [
+        {
+          "interfaceDescriptor": {
+            "bInterfaceSubClass": 1,
+            "bInterfaceProtocol": 2,
+            "iInterface": 6,
+            "interfaceString": "Mouse",
+            "bAlternateSetting": 0,
+            "bInterfaceClass": 3,
+            "bNumEndpoints": 1
+          },
+          "hidDescriptor": {
+            "hidBcdHID": 272,
+            "hidBCountryCode": 33,
+            "hidBNumDescriptors": 1
+          },
+          "endpointInFS": {
+            "endpointBEndpointAddress": 129,
+            "endpointWMaxPacketSize": 8,
+            "endpointBInterval": 8,
+            "endpointBmAttributes": 3
+          },
+          "endpointOutFS": null,
+          "endpointInHS": {
+            "endpointBEndpointAddress": 129,
+            "endpointWMaxPacketSize": 8,
+            "endpointBInterval": 8,
+            "endpointBmAttributes": 3
+          },
+          "endpointOutHS": null,
+          "optionalOutEndpointEnabled": false
+        }
+      ]
+    }
+  }
+}
