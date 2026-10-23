@@ -1,0 +1,182 @@
+{
+  "deviceType": "gamepad",
+  "descriptor": [
+    {
+      "tag": "USAGE_PAGE",
+      "value": 1,
+      "comment": "Generic Desktop"
+    },
+    {
+      "tag": "USAGE",
+      "value": 5,
+      "comment": "Game Pad"
+    },
+    {
+      "tag": "COLLECTION",
+      "value": 1,
+      "comment": "Application"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 9,
+      "comment": "Button"
+    },
+    {
+      "tag": "USAGE_MINIMUM",
+      "value": 1,
+      "comment": "Button 1"
+    },
+    {
+      "tag": "USAGE_MAXIMUM",
+      "value": 16,
+      "comment": "Button 16"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 0,
+      "comment": "Logical Min (0)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 1,
+      "comment": "Logical Max (1)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 1,
+      "comment": "1 bit"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 16,
+      "comment": "16 buttons"
+    },
+    {
+      "tag": "INPUT",
+      "value": 2,
+      "comment": "Data, Variable, Absolute"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 1,
+      "comment": "Generic Desktop"
+    },
+    {
+      "tag": "USAGE",
+      "value": 48,
+      "comment": "X"
+    },
+    {
+      "tag": "USAGE",
+      "value": 49,
+      "comment": "Y"
+    },
+    {
+      "tag": "USAGE",
+      "value": 50,
+      "comment": "Z"
+    },
+    {
+      "tag": "USAGE",
+      "value": 53,
+      "comment": "Rz"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 0,
+      "comment": "Logical Min (0)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 255,
+      "comment": "Logical Max (255)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 8,
+      "comment": "8 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 4,
+      "comment": "4 axes"
+    },
+    {
+      "tag": "INPUT",
+      "value": 2,
+      "comment": "Data, Variable, Absolute"
+    },
+    {
+      "tag": "USAGE",
+      "value": 57,
+      "comment": "Hat Switch"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 1,
+      "comment": "Logical Min (1)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 8,
+      "comment": "Logical Max (8)"
+    },
+    {
+      "tag": "PHYSICAL_MINIMUM",
+      "value": 0,
+      "comment": "Physical Min (0)"
+    },
+    {
+      "tag": "PHYSICAL_MAXIMUM",
+      "value": 315,
+      "comment": "Physical Max (315)",
+      "size": 2
+    },
+    {
+      "tag": "UNIT",
+      "value": 20,
+      "comment": "Unit (Degrees)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 4,
+      "comment": "4 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 1,
+      "comment": "1 hat"
+    },
+    {
+      "tag": "INPUT",
+      "value": 66,
+      "comment": "Data, Variable, Absolute, Null State"
+    },
+    {
+      "tag": "UNIT",
+      "value": 0,
+      "comment": "Unit (None)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 4,
+      "comment": "4 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 1,
+      "comment": "1 report"
+    },
+    {
+      "tag": "INPUT",
+      "value": 1,
+      "comment": "Constant (Padding)"
+    },
+    {
+      "tag": "END_COLLECTION",
+      "value": 0,
+      "comment": "End Application"
+    }
+  ],
+  "timestamp": "2026-03-24T11:13:57.620Z"
+}

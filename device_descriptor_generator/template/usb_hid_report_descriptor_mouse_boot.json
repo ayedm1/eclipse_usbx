@@ -1,0 +1,166 @@
+{
+  "deviceType": "mouse",
+  "descriptor": [
+    {
+      "tag": "USAGE_PAGE",
+      "value": 1,
+      "comment": "Generic Desktop"
+    },
+    {
+      "tag": "USAGE",
+      "value": 2,
+      "comment": "Mouse"
+    },
+    {
+      "tag": "COLLECTION",
+      "value": 1,
+      "comment": "Application"
+    },
+    {
+      "tag": "USAGE",
+      "value": 1,
+      "comment": "Pointer"
+    },
+    {
+      "tag": "COLLECTION",
+      "value": 0,
+      "comment": "Physical"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 9,
+      "comment": "Button"
+    },
+    {
+      "tag": "USAGE_MINIMUM",
+      "value": 1,
+      "comment": "Button 1"
+    },
+    {
+      "tag": "USAGE_MAXIMUM",
+      "value": 3,
+      "comment": "Button 3"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 0,
+      "comment": "Logical Min (0)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 1,
+      "comment": "Logical Max (1)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 1,
+      "comment": "1 bit"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 3,
+      "comment": "3 buttons"
+    },
+    {
+      "tag": "INPUT",
+      "value": 2,
+      "comment": "Data, Variable, Absolute"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 5,
+      "comment": "5 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 1,
+      "comment": "1 report"
+    },
+    {
+      "tag": "INPUT",
+      "value": 3,
+      "comment": "Constant, Variable, Absolute (Padding)"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 1,
+      "comment": "Generic Desktop"
+    },
+    {
+      "tag": "USAGE",
+      "value": 48,
+      "comment": "X"
+    },
+    {
+      "tag": "USAGE",
+      "value": 49,
+      "comment": "Y"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 129,
+      "comment": "Logical Min (-127)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 127,
+      "comment": "Logical Max (127)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 8,
+      "comment": "8 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 2,
+      "comment": "2 axes (X, Y)"
+    },
+    {
+      "tag": "INPUT",
+      "value": 6,
+      "comment": "Data, Variable, Relative"
+    },
+    {
+      "tag": "USAGE",
+      "value": 56,
+      "comment": "Wheel"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 129,
+      "comment": "Logical Min (-127)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 127,
+      "comment": "Logical Max (127)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 8,
+      "comment": "8 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 1,
+      "comment": "1 wheel"
+    },
+    {
+      "tag": "INPUT",
+      "value": 6,
+      "comment": "Data, Variable, Relative"
+    },
+    {
+      "tag": "END_COLLECTION",
+      "value": 0,
+      "comment": "End Physical"
+    },
+    {
+      "tag": "END_COLLECTION",
+      "value": 0,
+      "comment": "End Application"
+    }
+  ],
+  "timestamp": "2026-03-24T11:12:19.890Z"
+}

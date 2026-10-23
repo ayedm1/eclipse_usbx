@@ -10469,6 +10469,18 @@ function switchTab(tabId, clickedButton) {
     clickedButton.classList.add('active');
 }
 
+function showJSONCode(clickedButton) {
+    try {
+        const values = readFormValues();
+        const configValues = readConfigurationValues();
+        validateUniqueStringIndexes(values, configValues);
+        renderJSONArray(values, configValues);
+        switchTab('json-array', clickedButton);
+    } catch (error) {
+        alert('Error generating JSON: ' + error.message);
+    }
+}
+
 function saveJSON() {
     try {
         const values = readFormValues();
@@ -10944,7 +10956,7 @@ function loadJSON() {
                             return;
                         }
 
-                        const checkboxId = languageIdMap[String(lang.code).toUpperCase()];
+                        const checkboxId = languageIdMap[`0x${String(lang.code).replace(/^0x/i, '').toUpperCase()}`];
                         if (checkboxId) {
                             setElementValueFromJson(checkboxId, true);
                         }

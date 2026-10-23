@@ -41,6 +41,9 @@
   "classOrder": [
     "hid"
   ],
+  "instanceOrder": [
+    "hid:1"
+  ],
   "customStrings": [],
   "classes": {
     "hid": {

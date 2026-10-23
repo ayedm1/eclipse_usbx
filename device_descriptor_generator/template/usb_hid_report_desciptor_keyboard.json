@@ -1,0 +1,166 @@
+{
+  "deviceType": "keyboard",
+  "descriptor": [
+    {
+      "tag": "USAGE_PAGE",
+      "value": 1,
+      "comment": "Generic Desktop"
+    },
+    {
+      "tag": "USAGE",
+      "value": 6,
+      "comment": "Keyboard"
+    },
+    {
+      "tag": "COLLECTION",
+      "value": 1,
+      "comment": "Application"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 7,
+      "comment": "Keyboard/Keypad"
+    },
+    {
+      "tag": "USAGE_MINIMUM",
+      "value": 224,
+      "comment": "Left Control"
+    },
+    {
+      "tag": "USAGE_MAXIMUM",
+      "value": 231,
+      "comment": "Right GUI"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 0,
+      "comment": "Logical Min (0)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 1,
+      "comment": "Logical Max (1)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 1,
+      "comment": "1 bit"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 8,
+      "comment": "8 modifiers"
+    },
+    {
+      "tag": "INPUT",
+      "value": 2,
+      "comment": "Data, Variable, Absolute"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 8,
+      "comment": "8 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 1,
+      "comment": "1 byte"
+    },
+    {
+      "tag": "INPUT",
+      "value": 1,
+      "comment": "Constant (Reserved)"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 8,
+      "comment": "LED"
+    },
+    {
+      "tag": "USAGE_MINIMUM",
+      "value": 1,
+      "comment": "Num Lock"
+    },
+    {
+      "tag": "USAGE_MAXIMUM",
+      "value": 5,
+      "comment": "Kana"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 1,
+      "comment": "1 bit"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 5,
+      "comment": "5 LEDs"
+    },
+    {
+      "tag": "OUTPUT",
+      "value": 2,
+      "comment": "Data, Variable, Absolute"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 3,
+      "comment": "3 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 1,
+      "comment": "1 report"
+    },
+    {
+      "tag": "OUTPUT",
+      "value": 1,
+      "comment": "Constant (Padding)"
+    },
+    {
+      "tag": "USAGE_PAGE",
+      "value": 7,
+      "comment": "Keyboard/Keypad"
+    },
+    {
+      "tag": "USAGE_MINIMUM",
+      "value": 0,
+      "comment": "No Event"
+    },
+    {
+      "tag": "USAGE_MAXIMUM",
+      "value": 101,
+      "comment": "Keyboard Application"
+    },
+    {
+      "tag": "LOGICAL_MINIMUM",
+      "value": 0,
+      "comment": "Logical Min (0)"
+    },
+    {
+      "tag": "LOGICAL_MAXIMUM",
+      "value": 101,
+      "comment": "Logical Max (101)"
+    },
+    {
+      "tag": "REPORT_SIZE",
+      "value": 8,
+      "comment": "8 bits"
+    },
+    {
+      "tag": "REPORT_COUNT",
+      "value": 6,
+      "comment": "6 keycodes"
+    },
+    {
+      "tag": "INPUT",
+      "value": 0,
+      "comment": "Data, Array"
+    },
+    {
+      "tag": "END_COLLECTION",
+      "value": 0,
+      "comment": "End Application"
+    }
+  ],
+  "timestamp": "2026-03-24T11:13:25.626Z"
+}
