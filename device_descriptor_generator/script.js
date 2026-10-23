@@ -661,11 +661,8 @@ const DFU_DESC_SCHEMA = {
             help: 'String descriptor text for this DFU interface (used when iInterface != 0)',
             type: 'text',
             format: 'string',
-            default: '',
-            placeholder: 'e.g., DFU Interface',
-            conditionalField: 'dfuIInterface',
-            conditionalOperator: 'greaterThan',
-            conditionalValue: 0
+            default: 'DFU interface',
+            placeholder: 'e.g., DFU interface'
         }
     ]
 };
@@ -3070,7 +3067,7 @@ function buildActiveStringDescriptors(values, configValues) {
         const n = parseInt((document.getElementById('class-num-dfu') || {}).value) || 1;
         for (let i = 1; i <= n; i++) {
             const v = readDFUConfigValues(i);
-            appendIfActive(v.dfuIInterface, v.dfuInterfaceString, `Interface DFU-${i}`);
+            appendIfActive(v.dfuIInterface, v.dfuInterfaceString, `Interface DFU-${i}`, `dfu-config-${i}-languageIdDisplay`);
         }
     }
 
@@ -4331,7 +4328,7 @@ function renderCArray(descriptor, customComments) {
         const classNumber = parseInt(dfuNumberInput.value) || 1;
         for (let i = 1; i <= classNumber; i++) {
             const dfuConfigValues = readDFUConfigValues(i);
-            appendInterfaceString(dfuConfigValues.dfuIInterface, dfuConfigValues.dfuInterfaceString, `Interface DFU-${i}`);
+            appendInterfaceString(dfuConfigValues.dfuIInterface, dfuConfigValues.dfuInterfaceString, `Interface DFU-${i}`, `dfu-config-${i}-languageIdDisplay`);
         }
     }
 
@@ -4424,6 +4421,13 @@ function renderCArray(descriptor, customComments) {
                 sectionHeaderLabel = hidClassNumber === 1
                     ? 'iInterface HID string descriptor'
                     : `iInterface HID-${hidInstance} string descriptor`;
+            }
+            const dfuNameMatch = String(desc.name).match(/^Interface DFU-(\d+)$/);
+            if (dfuNameMatch) {
+                const dfuClassNumber = parseInt((document.getElementById('class-num-dfu') || {}).value) || 1;
+                sectionHeaderLabel = dfuClassNumber === 1
+                    ? 'iInterface DFU string descriptor'
+                    : `iInterface DFU-${dfuNameMatch[1]} string descriptor`;
             }
             const customStringMatch = String(desc.name).match(/^Custom String (\d+)$/);
             if (customStringMatch) {
@@ -4684,6 +4688,7 @@ function buildHighSpeedDescriptor() {
             }
         };
 
+        const hidSegmentStart = beginClassSegment();
         // Generate Interface and HID descriptors if HID is enabled
         const hidCheckbox = document.getElementById('class-hid');
         if (hidCheckbox && hidCheckbox.checked) {
@@ -4787,6 +4792,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('hid', hidSegmentStart);
+        const mscSegmentStart = beginClassSegment();
         // Generate Mass Storage descriptors if MSC is enabled (High Speed)
         const mscCheckbox = document.getElementById('class-msc');
         if (mscCheckbox && mscCheckbox.checked) {
@@ -4887,6 +4894,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('msc', mscSegmentStart);
+        const dfuSegmentStart = beginClassSegment();
         // Generate DFU descriptors if DFU is enabled (High Speed)
         const dfuCheckbox = document.getElementById('class-dfu');
         if (dfuCheckbox && dfuCheckbox.checked) {
@@ -4942,6 +4951,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('dfu', dfuSegmentStart);
+        const printerSegmentStart = beginClassSegment();
         // Generate Printer descriptors if Printer is enabled (High Speed)
         const printerCheckbox = document.getElementById('class-printer');
         if (printerCheckbox && printerCheckbox.checked) {
@@ -4998,6 +5009,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('printer', printerSegmentStart);
+        const videoSegmentStart = beginClassSegment();
         // Generate Video descriptors if Video is enabled (High Speed)
         const videoCheckbox = document.getElementById('class-video');
         if (videoCheckbox && videoCheckbox.checked) {
@@ -5044,6 +5057,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('video', videoSegmentStart);
+        const mtpSegmentStart = beginClassSegment();
         // Generate MTP descriptors if MTP is enabled (High Speed)
         const mtpCheckbox = document.getElementById('class-mtp');
         if (mtpCheckbox && mtpCheckbox.checked) {
@@ -5093,6 +5108,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('mtp', mtpSegmentStart);
+        const ptpSegmentStart = beginClassSegment();
         // Generate PTP descriptors if PTP is enabled (High Speed)
         const ptpCheckbox = document.getElementById('class-ptp');
         if (ptpCheckbox && ptpCheckbox.checked) {
@@ -5145,6 +5162,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('ptp', ptpSegmentStart);
+        const cdcSegmentStart = beginClassSegment();
         // Generate CDC ACM descriptors if CDC is enabled (High Speed)
         const cdcCheckbox = document.getElementById('class-cdc');
         if (cdcCheckbox && cdcCheckbox.checked) {
@@ -5418,6 +5437,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('cdc', cdcSegmentStart);
+        const rndisSegmentStart = beginClassSegment();
         // Generate CDC RNDIS descriptors if enabled (High Speed)
         const rndisCheckbox = document.getElementById('class-rndis');
         if (rndisCheckbox && rndisCheckbox.checked) {
@@ -5488,6 +5509,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('rndis', rndisSegmentStart);
+        const ecmSegmentStart = beginClassSegment();
         // Generate CDC ECM descriptors if enabled (High Speed)
         const ecmCheckbox = document.getElementById('class-ecm');
         if (ecmCheckbox && ecmCheckbox.checked) {
@@ -5567,6 +5590,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('ecm', ecmSegmentStart);
+        const audioSegmentStart = beginClassSegment();
         // Generate Audio 1.0 descriptors if Audio is enabled (High Speed)
         const audioCheckbox = document.getElementById('class-audio');
         if (audioCheckbox && audioCheckbox.checked) {
@@ -5832,6 +5857,8 @@ function buildHighSpeedDescriptor() {
             }
         }
 
+        finalizeClassSegment('audio', audioSegmentStart);
+        const audio2SegmentStart = beginClassSegment();
         // Generate Audio 2.0 descriptors if Audio 2.0 is enabled (High Speed)
         const audio2Checkbox = document.getElementById('class-audio2');
         if (audio2Checkbox && audio2Checkbox.checked) {
@@ -6073,6 +6100,13 @@ function buildHighSpeedDescriptor() {
                     .forEach((comment) => commentsList.push(`[AUDIO2-CS-EP-${i}] ${comment}`));
             }
         }
+
+        finalizeClassSegment('audio2', audio2SegmentStart);
+
+        getOrderedClassSegments(classSegments).forEach((segment) => {
+            descriptor = descriptor.concat(segment.descriptorPart);
+            commentsList = commentsList.concat(segment.commentsPart);
+        });
 
         // Configuration descriptor starts right after device (18) + qualifier (10).
         updateConfigurationTotalLength(descriptor, 28);
@@ -11333,7 +11367,7 @@ function renderHIDDescriptorFields() {
                             <div class="card-header">
                                 <h3 class="mb-0">
                                     <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseHIDDetails${i}', this)" aria-expanded="false">
-                                        HID Configuration
+                                        HID Descriptor
                                     </button>
                                 </h3>
                             </div>
@@ -11915,13 +11949,28 @@ function renderDFUDescriptorFields() {
                             <div class="card-header">
                                 <h3 class="mb-0">
                                     <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseDFUConfig${i}', this)" aria-expanded="false" style="font-size: 0.85em;">
-                                        DFU Interface and Functional Descriptor Configuration
+                                        Interface Descriptor
                                     </button>
                                 </h3>
                             </div>
                             <div id="collapseDFUConfig${i}" class="collapse">
                                 <div class="card-body">
                                     <div id="dfu-config-fields-${i}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 15px;">
+                            <div class="card-header">
+                                <h3 class="mb-0">
+                                    <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseDFUFunc${i}', this)" aria-expanded="false" style="font-size: 0.85em;">
+                                        Functional Descriptor
+                                    </button>
+                                </h3>
+                            </div>
+                            <div id="collapseDFUFunc${i}" class="collapse">
+                                <div class="card-body">
+                                    <div id="dfu-func-fields-${i}"></div>
                                 </div>
                             </div>
                         </div>
@@ -11946,24 +11995,71 @@ function renderDFUDescriptorFields() {
             hasMax: typeof field.max === 'number'
         }));
 
-        const configHtml = templates.field({ fields: fieldsForTemplate });
-        const target = document.getElementById(`dfu-config-fields-${i}`);
-        if (target) {
-            target.innerHTML = configHtml;
-        }
+        const interfaceFieldIds = ['dfuBInterfaceSubClass', 'dfuBInterfaceProtocol', 'dfuIInterface', 'dfuInterfaceString'];
+        const renderFields = (isInterface, targetId) => {
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.innerHTML = templates.field({
+                    fields: fieldsForTemplate.filter((f) => interfaceFieldIds.some((id) => f.id.endsWith(`-${id}`)) === isInterface)
+                });
+            }
+        };
+        renderFields(true, `dfu-config-fields-${i}`);
+        renderFields(false, `dfu-func-fields-${i}`);
 
-        // Set up conditional visibility
         updateClassConditionalFieldsVisibility(i, DFU_DESC_SCHEMA, 'dfu-config');
 
-        // Add change listener for dfuIInterface field
-        const dfuIInterfaceElement = document.getElementById(`dfu-config-${i}-dfuIInterface`);
-        if (dfuIInterfaceElement) {
-            dfuIInterfaceElement.addEventListener('change', () => {
-                updateClassConditionalFieldsVisibility(i, DFU_DESC_SCHEMA, 'dfu-config');
-            });
-            dfuIInterfaceElement.addEventListener('input', () => {
-                updateClassConditionalFieldsVisibility(i, DFU_DESC_SCHEMA, 'dfu-config');
-            });
+        const dfuContainer = document.getElementById(`dfu-config-fields-${i}`);
+        const dfuIndexEl = document.getElementById(`dfu-config-${i}-dfuIInterface`);
+        const dfuStringEl = document.getElementById(`dfu-config-${i}-dfuInterfaceString`);
+        const dfuIndexGroup = dfuIndexEl ? dfuIndexEl.closest('.form-group') : null;
+        const dfuStringGroup = dfuStringEl ? dfuStringEl.closest('.form-group') : null;
+        if (dfuContainer && dfuIndexGroup && dfuStringGroup) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'string-field-group';
+            wrapper.id = `dfu-config-${i}-string-group`;
+            wrapper.innerHTML = `
+                <div class="string-field-group-title">Interface String (iInterface)</div>
+                <div class="string-field-grid">
+                    <div class="form-group string-language-group">
+                        <label for="dfu-config-${i}-languageIdDisplay">
+                            Language ID ${createInfoIcon('Select language when multiple language IDs are enabled')}
+                        </label>
+                        <select id="dfu-config-${i}-languageIdDisplay" class="interface-language-selector" data-instance="dfu-config-${i}"></select>
+                    </div>
+                </div>
+            `;
+
+            const grid = wrapper.querySelector('.string-field-grid');
+            dfuContainer.appendChild(wrapper);
+            grid.insertBefore(dfuIndexGroup, grid.firstChild);
+            grid.insertBefore(dfuStringGroup, grid.querySelector('.string-language-group'));
+
+            setFormGroupLabel(dfuIndexGroup, 'Index', '0 = no string');
+            setFormGroupLabel(dfuStringGroup, 'String', 'Interface string');
+            updateInterfaceLanguageSelectors();
+        }
+
+        const updateDfuStringState = () => {
+            const indexEl = document.getElementById(`dfu-config-${i}-dfuIInterface`);
+            const stringEl = document.getElementById(`dfu-config-${i}-dfuInterfaceString`);
+            const langEl = document.getElementById(`dfu-config-${i}-languageIdDisplay`);
+            if (!indexEl || !stringEl) {
+                return;
+            }
+
+            const editable = (parseFloat(indexEl.value) || 0) !== 0;
+            stringEl.disabled = !editable;
+            if (langEl) {
+                langEl.dataset.lockedByIndex = editable ? 'false' : 'true';
+                langEl.disabled = !editable;
+            }
+        };
+        updateDfuStringState();
+
+        if (dfuIndexEl) {
+            dfuIndexEl.addEventListener('change', updateDfuStringState);
+            dfuIndexEl.addEventListener('input', updateDfuStringState);
         }
     }
 }
