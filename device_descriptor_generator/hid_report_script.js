@@ -319,14 +319,14 @@ const TEMPLATES = {
 };
 
 const TEMPLATE_FILE_MAP = {
-    'custom': 'Custom.json',
-    'mouse': 'mouse_boot.json',
-    'mouse-absolute': 'mouse_absolute.json',
-    'keyboard': 'keyboard.json',
-    'gamepad': 'game_pad.json',
-    'joystick': 'Joystick.json',
-    'consumer': 'Consumer.json',
-    'vendor': 'Vendor_specific.json'
+    'custom': 'usb_hid_report_descriptor_custom.json',
+    'mouse': 'usb_hid_report_descriptor_mouse_boot.json',
+    'mouse-absolute': 'usb_hid_report_descriptor_mouse_absolute.json',
+    'keyboard': 'usb_hid_report_descriptor_keyboard.json',
+    'gamepad': 'usb_hid_report_descriptor_game_pad.json',
+    'joystick': 'usb_hid_report_descriptor_Joystick.json',
+    'consumer': 'usb_hid_report_descriptor_consumer.json',
+    'vendor': 'usb_hid_report_descriptor_vendor_specific.json'
 };
 
 // Tag name to tag code mapping
@@ -383,7 +383,7 @@ async function loadTemplateFromJson(deviceType) {
         return templateCache[deviceType];
     }
 
-    const response = await fetch(`hid_report_descriptor_template/${fileName}`, {
+    const response = await fetch(`template/${fileName}`, {
         cache: 'no-cache'
     });
 

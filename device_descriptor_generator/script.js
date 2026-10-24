@@ -557,14 +557,23 @@ const MASS_STORAGE_DESC_SCHEMA = {
             ]
         },
         {
-            id: 'mscMaxLUN',
-            label: 'Maximum LUN (Logical Unit Number)',
-            help: 'Maximum Logical Unit Number. The value of the maximum LUN is 0 to 15 (0x0F). This value is returned in response to GET_MAX_LUN request.',
+            id: 'mscIInterface',
+            label: 'Interface String Index (iInterface)',
+            help: 'String index for this Mass Storage interface.',
             type: 'number',
             format: 'number',
             default: 0,
             min: 0,
-            max: 15
+            max: 255
+        },
+        {
+            id: 'mscInterfaceString',
+            label: 'Interface String',
+            help: 'String descriptor text for this Mass Storage interface (used when iInterface != 0)',
+            type: 'text',
+            format: 'string',
+            default: 'Mass Storage interface',
+            placeholder: 'e.g., Mass Storage interface'
         }
     ]
 };
@@ -2628,6 +2637,7 @@ function validateUniqueStringIndexes(values, configValues) {
     };
 
     registerClassIndexes('class-hid', 'class-num-hid', readInterfaceDescriptorValues, 'iInterface', 'iInterface HID');
+    registerClassIndexes('class-msc', 'class-num-msc', readMassStorageConfigValues, 'mscIInterface', 'iInterface MSC');
     registerClassIndexes('class-dfu', 'class-num-dfu', readDFUConfigValues, 'dfuIInterface', 'iInterface DFU');
     registerClassIndexes('class-printer', 'class-num-printer', readPrinterConfigValues, 'printerIInterface', 'iInterface Printer');
     registerClassIndexes('class-video', 'class-num-video', readVideoConfigValues, 'videoIInterface', 'iInterface Video');
@@ -3097,6 +3107,15 @@ function buildActiveStringDescriptors(values, configValues) {
         for (let i = 1; i <= n; i++) {
             const v = readInterfaceDescriptorValues(i);
             appendIfActive(v.iInterface, v.interfaceString, `Interface HID-${i}`, `interface-${i}-languageIdDisplay`);
+        }
+    }
+
+    const mscCbStr = document.getElementById('class-msc');
+    if (mscCbStr && mscCbStr.checked) {
+        const n = parseInt((document.getElementById('class-num-msc') || {}).value) || 1;
+        for (let i = 1; i <= n; i++) {
+            const v = readMassStorageConfigValues(i);
+            appendIfActive(v.mscIInterface, v.mscInterfaceString, `Interface MSC-${i}`, `msc-config-${i}-languageIdDisplay`);
         }
     }
 
@@ -4370,6 +4389,15 @@ function renderCArray(descriptor, customComments) {
         }
     }
 
+    const mscCheckboxStr = document.getElementById('class-msc');
+    if (mscCheckboxStr && mscCheckboxStr.checked) {
+        const classNumber = parseInt((document.getElementById('class-num-msc') || {}).value) || 1;
+        for (let i = 1; i <= classNumber; i++) {
+            const mscStrValues = readMassStorageConfigValues(i);
+            appendInterfaceString(mscStrValues.mscIInterface, mscStrValues.mscInterfaceString, `Interface MSC-${i}`, `msc-config-${i}-languageIdDisplay`);
+        }
+    }
+
     const dfuCheckbox = document.getElementById('class-dfu');
     if (dfuCheckbox && dfuCheckbox.checked) {
         const dfuNumberInput = document.getElementById('class-num-dfu');
@@ -4486,6 +4514,13 @@ function renderCArray(descriptor, customComments) {
                 sectionHeaderLabel = dfuClassNumber === 1
                     ? 'iInterface DFU string descriptor'
                     : `iInterface DFU-${dfuNameMatch[1]} string descriptor`;
+            }
+            const mscNameMatch = String(desc.name).match(/^Interface MSC-(\d+)$/);
+            if (mscNameMatch) {
+                const mscClassNumber = parseInt((document.getElementById('class-num-msc') || {}).value) || 1;
+                sectionHeaderLabel = mscClassNumber === 1
+                    ? 'iInterface MSC string descriptor'
+                    : `iInterface MSC-${mscNameMatch[1]} string descriptor`;
             }
             const cdcNameMatch = String(desc.name).match(/^Interface CDC ACM-(\d+)$/);
             if (cdcNameMatch) {
@@ -4908,7 +4943,7 @@ function buildHighSpeedDescriptor() {
                     0x08,  // bInterfaceClass (Mass Storage)
                     parseHexValue(mscConfigValues.mscBInterfaceSubClass || '0x06', 1, 'mscBInterfaceSubClass'),  // bInterfaceSubClass
                     parseHexValue(mscConfigValues.mscBInterfaceProtocol || '0x50', 1, 'mscBInterfaceProtocol'),  // bInterfaceProtocol
-                    0x00   // iInterface
+                    parseNumberValue(mscConfigValues.mscIInterface || 0, { id: 'mscIInterface', min: 0, max: 255, default: 0 })   // iInterface
                 ];
                 descriptor = descriptor.concat(interfaceDescriptor);
 
@@ -6687,7 +6722,7 @@ function pushReadableClassRows(rows, className, ifOffset, isHS, countOverride) {
             rows.push({ label: `═══ MSC (Mass Storage) Instance ${i}${isHS ? ' (High Speed)' : ''} ═══`, value: '', isHeader: true });
             rows.push({ label: '', value: '' });
             rows.push({ label: 'Interface Descriptor:', value: '' });
-            ifRow(ifOffset + (i - 1), 0x00, 2, 0x08, subCls, proto, 0x00);
+            ifRow(ifOffset + (i - 1), 0x00, 2, 0x08, subCls, proto, parseNumberValue(cfg.mscIInterface || 0, { id: 'mscIInterface', min: 0, max: 255, default: 0 }));
 
             const inKey = isHS ? 'mscBulkInEndpointHS' : 'mscBulkInEndpointFS';
             const inPktKey = isHS ? 'mscBulkInMaxPacketSizeHS' : 'mscBulkInMaxPacketSizeFS';
@@ -7683,7 +7718,7 @@ function generateDescriptor() {
                     0x08,  // bInterfaceClass (Mass Storage)
                     parseHexValue(mscConfigValues.mscBInterfaceSubClass || '0x06', 1, 'mscBInterfaceSubClass'),  // bInterfaceSubClass
                     parseHexValue(mscConfigValues.mscBInterfaceProtocol || '0x50', 1, 'mscBInterfaceProtocol'),  // bInterfaceProtocol
-                    0x00   // iInterface
+                    parseNumberValue(mscConfigValues.mscIInterface || 0, { id: 'mscIInterface', min: 0, max: 255, default: 0 })   // iInterface
                 ];
                 descriptor = descriptor.concat(interfaceDescriptor);
 
@@ -11793,12 +11828,12 @@ function renderMassStorageDescriptorFields() {
                 </div>
                 <div id="collapseMSCInstance${i}" class="collapse">
                     <div class="card-body">
-                        <!-- Mass Storage Configuration Card -->
+                        <!-- Mass Storage Interface Descriptor Card -->
                         <div class="card" style="margin-bottom: 15px;">
                             <div class="card-header">
                                 <h3 class="mb-0">
                                     <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseMSCConfig${i}', this)" aria-expanded="false">
-                                        Mass Storage Configuration
+                                        Interface Descriptor
                                     </button>
                                 </h3>
                             </div>
@@ -11931,6 +11966,56 @@ function renderMassStorageConfigFields(instanceNum) {
     const target = document.getElementById(`msc-config-fields-${instanceNum}`);
     if (target) {
         target.innerHTML = html;
+    }
+
+    const indexEl = document.getElementById(`msc-config-${instanceNum}-mscIInterface`);
+    const stringEl = document.getElementById(`msc-config-${instanceNum}-mscInterfaceString`);
+    const indexGroup = indexEl ? indexEl.closest('.form-group') : null;
+    const stringGroup = stringEl ? stringEl.closest('.form-group') : null;
+    if (target && indexGroup && stringGroup) {
+        const langId = `msc-config-${instanceNum}-languageIdDisplay`;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'string-field-group';
+        wrapper.id = `msc-config-${instanceNum}-string-group`;
+        wrapper.innerHTML = `
+            <div class="string-field-group-title">Interface String (iInterface)</div>
+            <div class="string-field-grid">
+                <div class="form-group string-language-group">
+                    <label for="${langId}">
+                        Language ID ${createInfoIcon('Select language when multiple language IDs are enabled')}
+                    </label>
+                    <select id="${langId}" class="interface-language-selector" data-instance="msc-config-${instanceNum}"></select>
+                </div>
+            </div>
+        `;
+
+        const grid = wrapper.querySelector('.string-field-grid');
+        target.appendChild(wrapper);
+        grid.insertBefore(indexGroup, grid.firstChild);
+        grid.insertBefore(stringGroup, grid.querySelector('.string-language-group'));
+
+        setFormGroupLabel(indexGroup, 'Index', '0 = no string');
+        setFormGroupLabel(stringGroup, 'String', 'Interface string');
+        updateInterfaceLanguageSelectors();
+    }
+
+    const updateState = () => {
+        const langEl = document.getElementById(`msc-config-${instanceNum}-languageIdDisplay`);
+        if (!indexEl || !stringEl) {
+            return;
+        }
+
+        const editable = (parseFloat(indexEl.value) || 0) !== 0;
+        stringEl.disabled = !editable;
+        if (langEl) {
+            langEl.dataset.lockedByIndex = editable ? 'false' : 'true';
+            langEl.disabled = !editable;
+        }
+    };
+    updateState();
+    if (indexEl) {
+        indexEl.addEventListener('change', updateState);
+        indexEl.addEventListener('input', updateState);
     }
 }
 

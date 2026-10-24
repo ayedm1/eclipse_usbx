@@ -58,9 +58,9 @@ def test_page_loads_without_errors(page):
 
 def test_class_rows_visibility(page):
     visible = page.evaluate(
-        "['cdc','dfu','hid'].map(c => !document.getElementById('class-' + c).closest('tr').hidden)"
+        "['cdc','dfu','hid','msc'].map(c => !document.getElementById('class-' + c).closest('tr').hidden)"
     )
-    assert visible == [True, True, True]
+    assert visible == [True, True, True, True]
     assert page.evaluate("document.getElementById('class-printer').closest('tr').hidden")
 
 
@@ -264,3 +264,20 @@ def test_endpoint_manual_edit_preserved_when_adding_class(page):
     vals = dict(_endpoint_values(page))
     assert vals[first[0]] == "0x85"
     assert list(vals.values()).count("0x85") == 2  # FS + HS of the same endpoint
+
+
+def test_msc_interface_string(page):
+    enable(page, "msc")
+    assert page.input_value("#msc-config-1-mscIInterface") == "0"
+    assert page.is_disabled("#msc-config-1-mscInterfaceString")
+    assert page.is_visible("#msc-config-1-languageIdDisplay") or page.is_disabled("#msc-config-1-languageIdDisplay")
+    page.evaluate("document.getElementById('collapseMSCInstance1').classList.add('show')")
+    page.fill("#msc-config-1-mscIInterface", "4")
+    page.dispatch_event("#msc-config-1-mscIInterface", "change")
+    assert page.is_enabled("#msc-config-1-mscInterfaceString")
+    page.fill("#msc-config-1-mscInterfaceString", "My MSC")
+    page.evaluate("generateDescriptor()")
+    hexs = page.inner_text("#hex-output")
+    assert "04" in hexs
+    assert page.evaluate("readMassStorageConfigValues(1).mscIInterface") == 4
+    assert page.errors == []
