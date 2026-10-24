@@ -99,9 +99,24 @@ def test_hid_descriptor_card_title(page):
 def test_cdc_interface_descriptor_card_and_string(page):
     enable(page, "cdc")
     assert page.locator("#cdc-config-fields-1 #cdc-config-1-cdcIInterface").count() == 1
-    assert page.locator("#cdc-func-fields-1 #cdc-config-1-cdcBcdCDC").count() == 1
+    assert page.locator("#cdc-func-header-fields-1 #cdc-config-1-cdcBcdCDC").count() == 1
+    assert page.locator("#cdc-func-call-mgmt-fields-1 #cdc-config-1-cdcDataInterfaceNumber").count() == 1
+    assert page.locator("#cdc-func-acm-fields-1 #cdc-config-1-cdcBmCapabilities").count() == 1
+    assert page.locator("#cdc-func-union-fields-1").count() == 1
     assert page.locator("#cdc-config-1-languageIdDisplay").count() == 1
-    assert page.input_value("#cdc-config-1-cdcInterfaceString") == "CDC ACM interface"
+    assert page.locator("#cdc-data-if-fields-1 #cdc-config-1-cdcDataIInterface").count() == 1
+    assert page.locator("#cdc-config-1-data-languageIdDisplay").count() == 1
+    assert "Control Interface Descriptor" in page.content()
+    assert page.is_disabled("#cdc-config-1-cdcDataInterfaceString")
+    page.fill("#cdc-config-1-cdcDataIInterface", "6")
+    page.dispatch_event("#cdc-config-1-cdcDataIInterface", "change")
+    assert page.is_enabled("#cdc-config-1-cdcDataInterfaceString")
+    page.evaluate("generateDescriptor()")
+    outputs = page.evaluate("['c-array','hex','readable','json-array'].map(t => document.getElementById(t + '-output').textContent).join('\\n')")
+    assert "CDC ACM data interface" in outputs or "CDC ACM Data string descriptor" in outputs
+    page.fill("#cdc-config-1-cdcDataIInterface", "0")
+    page.dispatch_event("#cdc-config-1-cdcDataIInterface", "change")
+    assert page.input_value("#cdc-config-1-cdcInterfaceString") == "CDC ACM control interface"
     assert page.is_disabled("#cdc-config-1-cdcInterfaceString")
 
     page.fill("#cdc-config-1-cdcIInterface", "5")
@@ -199,3 +214,53 @@ def test_class_defines_follow_language_id_array(page):
     page.evaluate("generateDescriptor()")
     text = page.inner_text("#c-array-output")
     assert text.index("device_framework_language_id") < text.index("UX_DEVICE_DFU_CFG")
+
+
+def test_hid_add_out_endpoint(page):
+    enable(page, "hid")
+    out = page.evaluate(
+        """() => {
+            document.getElementById('interface-1-bInterfaceProtocol').value = '0x00';
+            document.getElementById('interface-1-bInterfaceProtocol').dispatchEvent(new Event('change', { bubbles: true }));
+            addOptionalEndpoint(1);
+            return [
+                document.getElementById('endpoint-out-card-1').style.display,
+                document.getElementById('endpoint-out-1-endpointBEndpointAddress').value,
+                document.getElementById('endpoint-1-endpointBEndpointAddress').value
+            ];
+        }"""
+    )
+    assert out[0] == "block"
+    assert out[1] != out[2]
+    assert page.errors == []
+
+
+def _endpoint_values(page):
+    return page.evaluate("() => getEndpointAddressElements().map(e => [e.id, e.value])")
+
+
+def test_endpoint_addresses_auto_assigned_across_classes(page):
+    enable(page, "msc")
+    enable(page, "cdc")
+    page.evaluate("generateDescriptor()")
+    vals = _endpoint_values(page)
+    fs = [v for i, v in vals if "-hs-" not in i and not i.endswith("HS")]
+    assert len(fs) == len(set(fs)), vals
+    assert sorted(set(v for _, v in vals)) == sorted(set(fs))
+
+
+def test_endpoint_manual_edit_preserved_when_adding_class(page):
+    enable(page, "msc")
+    page.evaluate(
+        """() => {
+            const el = getEndpointAddressElements()[0];
+            el.value = '0x85';
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        }"""
+    )
+    first = _endpoint_values(page)[0]
+    enable(page, "cdc")
+    page.evaluate("generateDescriptor()")
+    vals = dict(_endpoint_values(page))
+    assert vals[first[0]] == "0x85"
+    assert list(vals.values()).count("0x85") == 2  # FS + HS of the same endpoint

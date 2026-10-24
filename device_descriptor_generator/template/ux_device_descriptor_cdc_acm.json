@@ -1,0 +1,98 @@
+{
+  "device": {
+    "idVendor": "0x1A0A",
+    "idProduct": "0x5740",
+    "manufacturer": "Eclipse Threadx",
+    "product": "USBX",
+    "serialNumber": "USBDEVICE00001",
+    "bcdDevice": "0x0100",
+    "bcdUSB": "0x0200",
+    "bDeviceClass": "0x00",
+    "bDeviceSubClass": "0x00",
+    "bDeviceProtocol": "0x00",
+    "bMaxPacketSize0": 8,
+    "iManufacturer": 1,
+    "iProduct": 2,
+    "iSerialNumber": 3,
+    "bNumConfigurations": 1
+  },
+  "configuration": {
+    "wTotalLength": 75,
+    "bNumInterfaces": 2,
+    "bConfigurationValue": "0x01",
+    "iConfiguration": 0,
+    "configurationString": "",
+    "bmAttributes": "0xC0",
+    "bMaxPower": 50,
+    "highSpeed": {
+      "iConfigurationHS": 0,
+      "configurationStringHS": "HIGH SPEED"
+    }
+  },
+  "languageIds": [
+    {
+      "code": "0x0409",
+      "name": "English (US)"
+    }
+  ],
+  "speeds": {
+    "fullSpeed": true,
+    "highSpeed": true
+  },
+  "classOrder": [
+    "cdc"
+  ],
+  "instanceOrder": [
+    "cdc:1"
+  ],
+  "customStrings": [],
+  "classes": {
+    "cdcAcm": {
+      "instances": [
+        {
+          "interfaceConfig": {
+            "cdcBInterfaceSubClass": "0x02",
+            "cdcBInterfaceProtocol": "0x01",
+            "cdcBcdCDC": "0x0110",
+            "cdcBmCapabilities": "0x02",
+            "cdcDataInterfaceNumber": "1",
+            "cdcIInterface": "0",
+            "cdcInterfaceString": "CDC ACM control interface",
+            "cdcDataIInterface": "0",
+            "cdcDataInterfaceString": "CDC ACM data interface"
+          },
+          "notifyFS": {
+            "cdcNotifyEndpointFS": "0x81",
+            "cdcNotifyMaxPacketSizeFS": "0x0008",
+            "cdcNotifyIntervalFS": "16"
+          },
+          "bulkInFS": {
+            "cdcBulkInEndpointFS": "0x82",
+            "cdcBulkInMaxPacketSizeFS": "0x0040",
+            "cdcBulkInIntervalFS": "0"
+          },
+          "bulkOutFS": {
+            "cdcBulkOutEndpointFS": "0x02",
+            "cdcBulkOutMaxPacketSizeFS": "0x0040",
+            "cdcBulkOutIntervalFS": "0"
+          },
+          "notifyHS": {
+            "cdcNotifyEndpointHS": "0x81",
+            "cdcNotifyMaxPacketSizeHS": "0x0040",
+            "cdcNotifyIntervalHS": "16"
+          },
+          "bulkInHS": {
+            "cdcBulkInEndpointHS": "0x82",
+            "cdcBulkInMaxPacketSizeHS": "0x0200",
+            "cdcBulkInIntervalHS": "0"
+          },
+          "bulkOutHS": {
+            "cdcBulkOutEndpointHS": "0x02",
+            "cdcBulkOutMaxPacketSizeHS": "0x0200",
+            "cdcBulkOutIntervalHS": "0"
+          }
+        }
+      ]
+    }
+  }
+}
