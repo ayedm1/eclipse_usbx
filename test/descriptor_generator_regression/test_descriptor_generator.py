@@ -183,14 +183,14 @@ def test_class_defines_in_c_code(page):
         if len(parts) == 3 and parts[0] == "#define" and parts[1].startswith("UX_DEVICE_"):
             defines[parts[1]] = int(parts[2])
     assert defines == {
-        "UX_DEVICE_DFU_CFG_0": 0,
-        "UX_DEVICE_DFU_ITF_0": 0,
+        "UX_DEVICE_DFU_CFG": 0,
+        "UX_DEVICE_DFU_ITF": 0,
         "UX_DEVICE_HID_1_CFG": 0,
         "UX_DEVICE_HID_1_ITF": 1,
         "UX_DEVICE_HID_2_CFG": 0,
         "UX_DEVICE_HID_2_ITF": 2,
-        "UX_DEVICE_CDC_ACM_CFG_0": 0,
-        "UX_DEVICE_CDC_ACM_ITF_0": 3,
+        "UX_DEVICE_CDC_ACM_CFG": 0,
+        "UX_DEVICE_CDC_ACM_ITF": 3,
     }
 
 
@@ -198,4 +198,4 @@ def test_class_defines_follow_language_id_array(page):
     enable(page, "dfu")
     page.evaluate("generateDescriptor()")
     text = page.inner_text("#c-array-output")
-    assert text.index("device_framework_language_id") < text.index("UX_DEVICE_DFU_CFG_0")
+    assert text.index("device_framework_language_id") < text.index("UX_DEVICE_DFU_CFG")

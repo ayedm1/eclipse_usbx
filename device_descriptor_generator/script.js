@@ -4606,8 +4606,8 @@ function renderCArray(descriptor, customComments) {
     instanceOrder.forEach((entry) => {
         const prefix = `UX_DEVICE_${classDefineNames[entry.className] || entry.className.toUpperCase()}`;
         const multi = instanceOrder.filter((e) => e.className === entry.className).length > 1;
-        const cfgName = multi ? `${prefix}_${entry.instance}_CFG` : `${prefix}_CFG_0`;
-        const itfName = multi ? `${prefix}_${entry.instance}_ITF` : `${prefix}_ITF_0`;
+        const cfgName = multi ? `${prefix}_${entry.instance}_CFG` : `${prefix}_CFG`;
+        const itfName = multi ? `${prefix}_${entry.instance}_ITF` : `${prefix}_ITF`;
         classDefines.push({ name: cfgName, value: 0 });
         classDefines.push({ name: itfName, value: getInstanceInterfaceStart(entry.className, entry.instance) });
     });
