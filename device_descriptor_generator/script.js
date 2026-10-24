@@ -4597,7 +4597,27 @@ function renderCArray(descriptor, customComments) {
     const stringSize = calculateArraySize(stringRows);
     const langIdSize = calculateArraySize(langIdRows);
 
+    const classDefineNames = {
+        hid: 'HID', msc: 'MSC', dfu: 'DFU', printer: 'PRINTER', video: 'VIDEO', mtp: 'MTP', ptp: 'PTP',
+        cdc: 'CDC_ACM', rndis: 'RNDIS', ecm: 'ECM', audio: 'AUDIO', audio2: 'AUDIO2'
+    };
+    const classDefines = [];
+    const instanceOrder = getInstanceOrder();
+    instanceOrder.forEach((entry) => {
+        const prefix = `UX_DEVICE_${classDefineNames[entry.className] || entry.className.toUpperCase()}`;
+        const multi = instanceOrder.filter((e) => e.className === entry.className).length > 1;
+        const cfgName = multi ? `${prefix}_${entry.instance}_CFG` : `${prefix}_CFG_0`;
+        const itfName = multi ? `${prefix}_${entry.instance}_ITF` : `${prefix}_ITF_0`;
+        classDefines.push({ name: cfgName, value: 0 });
+        classDefines.push({ name: itfName, value: getInstanceInterfaceStart(entry.className, entry.instance) });
+    });
+    const defineWidth = classDefines.reduce((max, d) => Math.max(max, d.name.length), 0) + 2;
+    classDefines.forEach((d) => {
+        d.padding = ' '.repeat(defineWidth - d.name.length);
+    });
+
     document.getElementById('c-array-output').innerHTML = templates.cArray({
+        classDefines: classDefines,
         rows: mergedRows,
         hsRows: mergedHsRows,
         stringRows: stringRows,
@@ -10470,15 +10490,7 @@ function switchTab(tabId, clickedButton) {
 }
 
 function showJSONCode(clickedButton) {
-    try {
-        const values = readFormValues();
-        const configValues = readConfigurationValues();
-        validateUniqueStringIndexes(values, configValues);
-        renderJSONArray(values, configValues);
-        switchTab('json-array', clickedButton);
-    } catch (error) {
-        alert('Error generating JSON: ' + error.message);
-    }
+    switchTab('json-array', clickedButton);
 }
 
 function saveJSON() {
@@ -10633,10 +10645,10 @@ function newDescriptor() {
     }
 
     // Clear outputs
-    document.getElementById('c-array-output').innerHTML = '/* Click "Generate Descriptor" to see output */';
-    document.getElementById('json-array-output').innerHTML = '/* Click "Generate Descriptor" to see output */';
-    document.getElementById('hex-output').innerHTML = '/* Click "Generate Descriptor" to see output */';
-    document.getElementById('readable-output').innerHTML = '/* Click "Generate Descriptor" to see output */';
+    document.getElementById('c-array-output').innerHTML = '// Click Generate to create USB Device Descriptor';
+    document.getElementById('json-array-output').innerHTML = '// Click Generate to create USB Device Descriptor';
+    document.getElementById('hex-output').innerHTML = '// Click Generate to create USB Device Descriptor';
+    document.getElementById('readable-output').innerHTML = '// Click Generate to create USB Device Descriptor';
 
     alert('New descriptor created. Form has been reset to default values.');
 }
@@ -10695,7 +10707,9 @@ function resetForm() {
         renderAudio2DescriptorFields();
     }
 
-    generateDescriptor();
+    ['c-array-output', 'json-array-output', 'hex-output', 'readable-output'].forEach((id) => {
+        document.getElementById(id).textContent = '// Click Generate to create USB Device Descriptor';
+    });
 }
 
 function setElementValueFromJson(elementId, value) {
@@ -14254,6 +14268,4 @@ window.addEventListener('load', () => {
             renderAudio2DescriptorFields();
         }
     });
-
-    generateDescriptor();
 });

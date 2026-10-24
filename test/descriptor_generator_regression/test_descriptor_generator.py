@@ -135,6 +135,8 @@ def test_json_code_tab_shows_json(page):
     enable(page, "dfu")
     page.click("text=JSON Code")
     assert page.is_visible("#json-array-output")
+    assert page.inner_text("#json-array-output") == "// Click Generate to create USB Device Descriptor"
+    page.evaluate("generateDescriptor()")
     shown = json.loads(page.inner_text("#json-array-output"))
     assert "dfu" in shown["classes"]
 
@@ -157,3 +159,43 @@ def test_save_buttons_use_expected_filenames(page, tab, output_id, filename):
     assert download.value.suggested_filename == filename
     saved = Path(download.value.path()).read_text(encoding="utf-8")
     assert saved == page.inner_text(f"#{output_id}")
+
+
+def test_default_and_reset_output_comment(page):
+    msg = "// Click Generate to create USB Device Descriptor"
+    ids = ["c-array-output", "json-array-output", "hex-output", "readable-output"]
+    assert [page.inner_text(f"#{i}") for i in ids] == [msg] * 4
+    page.evaluate("generateDescriptor()")
+    assert page.inner_text("#c-array-output") != msg
+    page.evaluate("resetForm()")
+    assert [page.inner_text(f"#{i}") for i in ids] == [msg] * 4
+
+
+def test_class_defines_in_c_code(page):
+    enable(page, "hid", 2)
+    enable(page, "dfu")
+    enable(page, "cdc")
+    page.evaluate("generateDescriptor()")
+    text = page.inner_text("#c-array-output")
+    defines = {}
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) == 3 and parts[0] == "#define" and parts[1].startswith("UX_DEVICE_"):
+            defines[parts[1]] = int(parts[2])
+    assert defines == {
+        "UX_DEVICE_DFU_CFG_0": 0,
+        "UX_DEVICE_DFU_ITF_0": 0,
+        "UX_DEVICE_HID_1_CFG": 0,
+        "UX_DEVICE_HID_1_ITF": 1,
+        "UX_DEVICE_HID_2_CFG": 0,
+        "UX_DEVICE_HID_2_ITF": 2,
+        "UX_DEVICE_CDC_ACM_CFG_0": 0,
+        "UX_DEVICE_CDC_ACM_ITF_0": 3,
+    }
+
+
+def test_class_defines_follow_language_id_array(page):
+    enable(page, "dfu")
+    page.evaluate("generateDescriptor()")
+    text = page.inner_text("#c-array-output")
+    assert text.index("device_framework_language_id") < text.index("UX_DEVICE_DFU_CFG_0")

@@ -213,6 +213,10 @@ button {
     display: block;
 }
 
+.tab-content {
+    position: relative;
+}
+
 .output-box {
     background: #2d2d2d;
     color: #f8f8f2;
@@ -225,7 +229,6 @@ button {
     min-height: 350px;
     max-height: 700px;
     overflow-y: auto;
-    position: relative;
     width: 100%;
     box-sizing: border-box;
 }
@@ -247,7 +250,8 @@ button {
 .output-actions {
     position: absolute;
     top: 8px;
-    right: 8px;
+    right: 26px;
+    z-index: 2;
     display: flex;
     gap: 6px;
 }
