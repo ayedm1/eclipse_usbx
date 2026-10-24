@@ -99,9 +99,24 @@ def test_hid_descriptor_card_title(page):
 def test_cdc_interface_descriptor_card_and_string(page):
     enable(page, "cdc")
     assert page.locator("#cdc-config-fields-1 #cdc-config-1-cdcIInterface").count() == 1
-    assert page.locator("#cdc-func-fields-1 #cdc-config-1-cdcBcdCDC").count() == 1
+    assert page.locator("#cdc-func-header-fields-1 #cdc-config-1-cdcBcdCDC").count() == 1
+    assert page.locator("#cdc-func-call-mgmt-fields-1 #cdc-config-1-cdcDataInterfaceNumber").count() == 1
+    assert page.locator("#cdc-func-acm-fields-1 #cdc-config-1-cdcBmCapabilities").count() == 1
+    assert page.locator("#cdc-func-union-fields-1").count() == 1
     assert page.locator("#cdc-config-1-languageIdDisplay").count() == 1
-    assert page.input_value("#cdc-config-1-cdcInterfaceString") == "CDC ACM interface"
+    assert page.locator("#cdc-data-if-fields-1 #cdc-config-1-cdcDataIInterface").count() == 1
+    assert page.locator("#cdc-config-1-data-languageIdDisplay").count() == 1
+    assert "Control Interface Descriptor" in page.content()
+    assert page.is_disabled("#cdc-config-1-cdcDataInterfaceString")
+    page.fill("#cdc-config-1-cdcDataIInterface", "6")
+    page.dispatch_event("#cdc-config-1-cdcDataIInterface", "change")
+    assert page.is_enabled("#cdc-config-1-cdcDataInterfaceString")
+    page.evaluate("generateDescriptor()")
+    outputs = page.evaluate("['c-array','hex','readable','json-array'].map(t => document.getElementById(t + '-output').textContent).join('\\n')")
+    assert "CDC ACM data interface" in outputs or "CDC ACM Data string descriptor" in outputs
+    page.fill("#cdc-config-1-cdcDataIInterface", "0")
+    page.dispatch_event("#cdc-config-1-cdcDataIInterface", "change")
+    assert page.input_value("#cdc-config-1-cdcInterfaceString") == "CDC ACM control interface"
     assert page.is_disabled("#cdc-config-1-cdcInterfaceString")
 
     page.fill("#cdc-config-1-cdcIInterface", "5")

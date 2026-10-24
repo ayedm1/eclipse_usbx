@@ -952,7 +952,7 @@ const CDC_ACM_DESC_SCHEMA = {
         },
         {
             id: 'cdcDataInterfaceNumber',
-            label: 'Data Interface Number',
+            label: 'Data Interface Number (bDataInterface)',
             help: 'Interface number of Data Class interface.',
             type: 'number',
             format: 'number',
@@ -976,8 +976,27 @@ const CDC_ACM_DESC_SCHEMA = {
             help: 'String descriptor text for this interface (used when iInterface != 0)',
             type: 'text',
             format: 'string',
-            default: 'CDC ACM interface',
-            placeholder: 'e.g., CDC ACM interface'
+            default: 'CDC ACM control interface',
+            placeholder: 'e.g., CDC ACM control interface'
+        },
+        {
+            id: 'cdcDataIInterface',
+            label: 'Data Interface String Index (iInterface)',
+            help: 'String index for the CDC Data interface, 0 = no string',
+            type: 'number',
+            format: 'number',
+            default: 0,
+            min: 0,
+            max: 255
+        },
+        {
+            id: 'cdcDataInterfaceString',
+            label: 'Data Interface String',
+            help: 'String descriptor text for the data interface (used when iInterface != 0)',
+            type: 'text',
+            format: 'string',
+            default: 'CDC ACM data interface',
+            placeholder: 'e.g., CDC ACM data interface'
         }
     ]
 };
@@ -3096,6 +3115,7 @@ function buildActiveStringDescriptors(values, configValues) {
         for (let i = 1; i <= n; i++) {
             const v = readCDCConfigValues(i);
             appendIfActive(v.cdcIInterface, v.cdcInterfaceString, `Interface CDC ACM-${i}`, `cdc-config-${i}-languageIdDisplay`);
+            appendIfActive(v.cdcDataIInterface, v.cdcDataInterfaceString, `Interface CDC ACM Data-${i}`, `cdc-config-${i}-data-languageIdDisplay`);
         }
     }
 
@@ -4366,6 +4386,7 @@ function renderCArray(descriptor, customComments) {
         for (let i = 1; i <= classNumber; i++) {
             const cdcStrValues = readCDCConfigValues(i);
             appendInterfaceString(cdcStrValues.cdcIInterface, cdcStrValues.cdcInterfaceString, `Interface CDC ACM-${i}`, `cdc-config-${i}-languageIdDisplay`);
+            appendInterfaceString(cdcStrValues.cdcDataIInterface, cdcStrValues.cdcDataInterfaceString, `Interface CDC ACM Data-${i}`, `cdc-config-${i}-data-languageIdDisplay`);
         }
     }
 
@@ -4472,6 +4493,13 @@ function renderCArray(descriptor, customComments) {
                 sectionHeaderLabel = cdcClassNumber === 1
                     ? 'iInterface CDC ACM string descriptor'
                     : `iInterface CDC ACM-${cdcNameMatch[1]} string descriptor`;
+            }
+            const cdcDataNameMatch = String(desc.name).match(/^Interface CDC ACM Data-(\d+)$/);
+            if (cdcDataNameMatch) {
+                const cdcClassNumber = parseInt((document.getElementById('class-num-cdc') || {}).value) || 1;
+                sectionHeaderLabel = cdcClassNumber === 1
+                    ? 'iInterface CDC ACM Data string descriptor'
+                    : `iInterface CDC ACM Data-${cdcDataNameMatch[1]} string descriptor`;
             }
             const customStringMatch = String(desc.name).match(/^Custom String (\d+)$/);
             if (customStringMatch) {
@@ -5424,7 +5452,7 @@ function buildHighSpeedDescriptor() {
                     0x0A,  // bInterfaceClass (CDC Data)
                     0x00,  // bInterfaceSubClass
                     0x00,  // bInterfaceProtocol
-                    0x00   // iInterface
+                    parseInt(cdcConfigValues.cdcDataIInterface, 10) & 0xFF || 0x00   // iInterface
                 ];
                 descriptor = descriptor.concat(dataInterfaceDescriptor);
 
@@ -6815,7 +6843,7 @@ function pushReadableClassRows(rows, className, ifOffset, isHS, countOverride) {
             iadRow(commIf, 2, 0x02, subCls, proto);
             rows.push({ label: '', value: '' });
             rows.push({ label: 'Communication Interface Descriptor:', value: '' });
-            ifRow(commIf, 0x00, 1, 0x02, subCls, proto, 0x00);
+            ifRow(commIf, 0x00, 1, 0x02, subCls, proto, (parseInt(cfg.cdcIInterface, 10) || 0) & 0xFF);
             rows.push({ label: '', value: '' });
             rows.push({ label: 'CDC Header Functional Descriptor:', value: '' });
             rows.push({ label: '  bFunctionLength:', value: '5 bytes' });
@@ -6857,7 +6885,7 @@ function pushReadableClassRows(rows, className, ifOffset, isHS, countOverride) {
 
             rows.push({ label: '', value: '' });
             rows.push({ label: 'Data Interface Descriptor:', value: '' });
-            ifRow(dataIf, 0x00, 2, 0x0A, 0x00, 0x00, 0x00);
+            ifRow(dataIf, 0x00, 2, 0x0A, 0x00, 0x00, (parseInt(cfg.cdcDataIInterface, 10) || 0) & 0xFF);
 
             bulkEpFromHex('Endpoint IN Descriptor (Bulk):', bkIn[`cdcBulkInEndpoint${sfx}`], bkIn[`cdcBulkInMaxPacketSize${sfx}`], bkIn[`cdcBulkInInterval${sfx}`], '0x82', defPkt, '0');
             bulkEpFromHex('Endpoint OUT Descriptor (Bulk):', bkOut[`cdcBulkOutEndpoint${sfx}`], bkOut[`cdcBulkOutMaxPacketSize${sfx}`], bkOut[`cdcBulkOutInterval${sfx}`], '0x02', defPkt, '0');
@@ -7995,7 +8023,7 @@ function generateDescriptor() {
                     0x0A,  // bInterfaceClass (CDC Data)
                     0x00,  // bInterfaceSubClass
                     0x00,  // bInterfaceProtocol
-                    0x00   // iInterface
+                    parseInt(cdcConfigValues.cdcDataIInterface, 10) & 0xFF || 0x00   // iInterface
                 ];
                 descriptor = descriptor.concat(dataInterfaceDescriptor);
 
@@ -12802,7 +12830,7 @@ function renderCDCACMDescriptorFields() {
                             <div class="card-header">
                                 <h3 class="mb-0">
                                     <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseCDCConfig${i}', this)" aria-expanded="false" style="font-size: 0.85em;">
-                                        Interface Descriptor
+                                        Control Interface Descriptor
                                     </button>
                                 </h3>
                             </div>
@@ -12813,20 +12841,26 @@ function renderCDCACMDescriptorFields() {
                             </div>
                         </div>
 
+                        ${[
+                            ['Header', 'header'],
+                            ['Call Management', 'call-mgmt'],
+                            ['Abstract Control Management', 'acm'],
+                            ['Union', 'union']
+                        ].map(([title, key]) => `
                         <div class="card" style="margin-bottom: 15px;">
                             <div class="card-header">
                                 <h3 class="mb-0">
-                                    <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseCDCFunc${i}', this)" aria-expanded="false" style="font-size: 0.85em;">
-                                        Functional Descriptor
+                                    <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseCDCFunc-${key}-${i}', this)" aria-expanded="false" style="font-size: 0.85em;">
+                                        ${title} Functional Descriptor
                                     </button>
                                 </h3>
                             </div>
-                            <div id="collapseCDCFunc${i}" class="collapse">
+                            <div id="collapseCDCFunc-${key}-${i}" class="collapse">
                                 <div class="card-body">
-                                    <div id="cdc-func-fields-${i}"></div>
+                                    <div id="cdc-func-${key}-fields-${i}"></div>
                                 </div>
                             </div>
-                        </div>
+                        </div>`).join('')}
 
                         <div class="card" style="margin-bottom: 15px;">
                             <div class="card-header">
@@ -12846,6 +12880,21 @@ function renderCDCACMDescriptorFields() {
                                         <div class="card-header"><h3 class="mb-0"><button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseCDCNotifyHS${i}', this)" aria-expanded="false" style="font-size: 0.7em;">Endpoint - High Speed</button></h3></div>
                                         <div id="collapseCDCNotifyHS${i}" class="collapse"><div class="card-body"><div id="cdc-notify-hs-fields-${i}"></div></div></div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 15px;">
+                            <div class="card-header">
+                                <h3 class="mb-0">
+                                    <button class="btn-collapse collapsed" type="button" onclick="toggleCollapse('collapseCDCDataIf${i}', this)" aria-expanded="false" style="font-size: 0.85em;">
+                                        Data Interface Descriptor
+                                    </button>
+                                </h3>
+                            </div>
+                            <div id="collapseCDCDataIf${i}" class="collapse">
+                                <div class="card-body">
+                                    <div id="cdc-data-if-fields-${i}"></div>
                                 </div>
                             </div>
                         </div>
@@ -12927,68 +12976,83 @@ function renderCDCConfigFields(instanceNum) {
     }));
 
     const interfaceFieldIds = ['cdcBInterfaceSubClass', 'cdcBInterfaceProtocol', 'cdcIInterface', 'cdcInterfaceString'];
-    const renderFields = (isInterface, targetId) => {
+    const functionalGroups = {
+        header: ['cdcBcdCDC'],
+        'call-mgmt': ['cdcDataInterfaceNumber'],
+        acm: ['cdcBmCapabilities']
+    };
+    const renderFields = (ids, targetId) => {
         const target = document.getElementById(targetId);
         if (target) {
             target.innerHTML = templates.field({
-                fields: fieldsForTemplate.filter((f) => interfaceFieldIds.some((id) => f.id.endsWith(`-${id}`)) === isInterface)
+                fields: fieldsForTemplate.filter((f) => ids.some((id) => f.id.endsWith(`-${id}`)))
             });
         }
     };
-    renderFields(true, `cdc-config-fields-${instanceNum}`);
-    renderFields(false, `cdc-func-fields-${instanceNum}`);
-
-    const container = document.getElementById(`cdc-config-fields-${instanceNum}`);
-    const indexEl = document.getElementById(`cdc-config-${instanceNum}-cdcIInterface`);
-    const stringEl = document.getElementById(`cdc-config-${instanceNum}-cdcInterfaceString`);
-    const indexGroup = indexEl ? indexEl.closest('.form-group') : null;
-    const stringGroup = stringEl ? stringEl.closest('.form-group') : null;
-    if (container && indexGroup && stringGroup) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'string-field-group';
-        wrapper.id = `cdc-config-${instanceNum}-string-group`;
-        wrapper.innerHTML = `
-            <div class="string-field-group-title">Interface String (iInterface)</div>
-            <div class="string-field-grid">
-                <div class="form-group string-language-group">
-                    <label for="cdc-config-${instanceNum}-languageIdDisplay">
-                        Language ID ${createInfoIcon('Select language when multiple language IDs are enabled')}
-                    </label>
-                    <select id="cdc-config-${instanceNum}-languageIdDisplay" class="interface-language-selector" data-instance="cdc-config-${instanceNum}"></select>
-                </div>
-            </div>
-        `;
-
-        const grid = wrapper.querySelector('.string-field-grid');
-        container.appendChild(wrapper);
-        grid.insertBefore(indexGroup, grid.firstChild);
-        grid.insertBefore(stringGroup, grid.querySelector('.string-language-group'));
-
-        setFormGroupLabel(indexGroup, 'Index', '0 = no string');
-        setFormGroupLabel(stringGroup, 'String', 'Interface string');
-        updateInterfaceLanguageSelectors();
+    renderFields(interfaceFieldIds, `cdc-config-fields-${instanceNum}`);
+    renderFields(['cdcDataIInterface', 'cdcDataInterfaceString'], `cdc-data-if-fields-${instanceNum}`);
+    Object.keys(functionalGroups).forEach((group) => {
+        renderFields(functionalGroups[group], `cdc-func-${group}-fields-${instanceNum}`);
+    });
+    const unionTarget = document.getElementById(`cdc-func-union-fields-${instanceNum}`);
+    if (unionTarget) {
+        unionTarget.innerHTML = '<p class="field-note">bMasterInterface is the Communication interface number and bSlaveInterface0 is the Data Interface Number (set in Call Management Functional). Both are assigned automatically.</p>';
     }
 
-    const updateCdcStringState = () => {
-        const currentIndex = document.getElementById(`cdc-config-${instanceNum}-cdcIInterface`);
-        const currentString = document.getElementById(`cdc-config-${instanceNum}-cdcInterfaceString`);
-        const langEl = document.getElementById(`cdc-config-${instanceNum}-languageIdDisplay`);
-        if (!currentIndex || !currentString) {
-            return;
+    const setupStringGroup = (containerId, indexId, stringId, langPrefix, groupId) => {
+        const container = document.getElementById(containerId);
+        const indexEl = document.getElementById(`cdc-config-${instanceNum}-${indexId}`);
+        const stringEl = document.getElementById(`cdc-config-${instanceNum}-${stringId}`);
+        const indexGroup = indexEl ? indexEl.closest('.form-group') : null;
+        const stringGroup = stringEl ? stringEl.closest('.form-group') : null;
+        if (container && indexGroup && stringGroup) {
+            const langId = `cdc-config-${instanceNum}-${langPrefix}languageIdDisplay`;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'string-field-group';
+            wrapper.id = `cdc-config-${instanceNum}-${groupId}`;
+            wrapper.innerHTML = `
+                <div class="string-field-group-title">Interface String (iInterface)</div>
+                <div class="string-field-grid">
+                    <div class="form-group string-language-group">
+                        <label for="${langId}">
+                            Language ID ${createInfoIcon('Select language when multiple language IDs are enabled')}
+                        </label>
+                        <select id="${langId}" class="interface-language-selector" data-instance="cdc-config-${instanceNum}${langPrefix ? '-data' : ''}"></select>
+                    </div>
+                </div>
+            `;
+
+            const grid = wrapper.querySelector('.string-field-grid');
+            container.appendChild(wrapper);
+            grid.insertBefore(indexGroup, grid.firstChild);
+            grid.insertBefore(stringGroup, grid.querySelector('.string-language-group'));
+
+            setFormGroupLabel(indexGroup, 'Index', '0 = no string');
+            setFormGroupLabel(stringGroup, 'String', 'Interface string');
+            updateInterfaceLanguageSelectors();
         }
 
-        const editable = (parseFloat(currentIndex.value) || 0) !== 0;
-        currentString.disabled = !editable;
-        if (langEl) {
-            langEl.dataset.lockedByIndex = editable ? 'false' : 'true';
-            langEl.disabled = !editable;
+        const updateState = () => {
+            const langEl = document.getElementById(`cdc-config-${instanceNum}-${langPrefix}languageIdDisplay`);
+            if (!indexEl || !stringEl) {
+                return;
+            }
+
+            const editable = (parseFloat(indexEl.value) || 0) !== 0;
+            stringEl.disabled = !editable;
+            if (langEl) {
+                langEl.dataset.lockedByIndex = editable ? 'false' : 'true';
+                langEl.disabled = !editable;
+            }
+        };
+        updateState();
+        if (indexEl) {
+            indexEl.addEventListener('change', updateState);
+            indexEl.addEventListener('input', updateState);
         }
     };
-    updateCdcStringState();
-    if (indexEl) {
-        indexEl.addEventListener('change', updateCdcStringState);
-        indexEl.addEventListener('input', updateCdcStringState);
-    }
+    setupStringGroup(`cdc-config-fields-${instanceNum}`, 'cdcIInterface', 'cdcInterfaceString', '', 'string-group');
+    setupStringGroup(`cdc-data-if-fields-${instanceNum}`, 'cdcDataIInterface', 'cdcDataInterfaceString', 'data-', 'data-string-group');
 }
 
 function renderCDCNotifyFieldsFS(instanceNum) {

@@ -260,6 +260,12 @@ button {
     position: static;
 }
 
+.field-note {
+    margin: 0;
+    font-size: 0.85em;
+    color: #666;
+}
+
 .copy-button.btn-with-icon {
     gap: 6px;
 }
