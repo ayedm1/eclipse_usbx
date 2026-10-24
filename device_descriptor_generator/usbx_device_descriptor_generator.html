@@ -655,7 +655,7 @@
                             <span class="btn-label">Save</span>
                         </button>
                         </div>
-                        <pre id="c-array-output">/* Click "Generate Descriptor" to see output */</pre>
+                        <pre id="c-array-output">// Click Generate to create USB Device Descriptor</pre>
                     </div>
                 </div>
 
@@ -671,7 +671,7 @@
                             <span class="btn-label">Save</span>
                         </button>
                         </div>
-                        <pre id="json-array-output">/* Click "Generate Descriptor" to see output */</pre>
+                        <pre id="json-array-output">// Click Generate to create USB Device Descriptor</pre>
                     </div>
                 </div>
 
@@ -687,7 +687,7 @@
                             <span class="btn-label">Save</span>
                         </button>
                         </div>
-                        <pre id="hex-output">/* Click "Generate Descriptor" to see output */</pre>
+                        <pre id="hex-output">// Click Generate to create USB Device Descriptor</pre>
                     </div>
                 </div>
 
@@ -703,7 +703,7 @@
                             <span class="btn-label">Save</span>
                         </button>
                         </div>
-                        <pre id="readable-output">/* Click "Generate Descriptor" to see output */</pre>
+                        <pre id="readable-output">// Click Generate to create USB Device Descriptor</pre>
                     </div>
                 </div>
             </div>
@@ -815,6 +815,13 @@
     <span class="descriptor-value">{{{formatCodeField hex comma}}}</span>{{#if comment}}<span class="descriptor-comment">/* {{comment}} */</span>{{/if}}
 {{/each}}
 };
+{{#if classDefines}}
+
+<span class="descriptor-comment">/* USB class configuration and first interface numbers */</span>
+{{#each classDefines}}
+<span class="descriptor-keyword">#define</span> <span class="descriptor-value">{{name}}</span>{{padding}}<span class="descriptor-value">{{value}}</span>
+{{/each}}
+{{/if}}
     </script>
 
     <script id="hex-template" type="text/x-handlebars-template">
